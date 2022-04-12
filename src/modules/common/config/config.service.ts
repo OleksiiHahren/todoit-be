@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import * as dotenv from 'dotenv';
-import { get } from 'lodash.get';
 import ProcessEnv = NodeJS.ProcessEnv;
 import * as config from 'config';
+import * as get from 'lodash.get';
+import * as dotenv from 'dotenv';
 
 @Injectable()
 export class ConfigService {

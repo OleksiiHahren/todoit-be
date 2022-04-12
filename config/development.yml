@@ -1,0 +1,5 @@
+db:
+  synchronize: true
+
+jwt:
+  secret: 'artstationSecret'

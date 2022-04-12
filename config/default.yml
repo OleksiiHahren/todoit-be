@@ -1,0 +1,22 @@
+app:
+  origin: '*'
+
+server:
+  port: 3000
+
+db:
+  type: 'postgres'
+  port: 5432
+  host: '127.0.0.1'
+  database: 'db-todo-it'
+  username: 'postgres'
+  password: '1313'
+  migrationsRun: false
+  logging: true
+
+jwt:
+  tokenLife: 3600
+  refreshTokenLife: 86400
+  secret: secret
+googleAuth:
+  GOOGLE_REDIRECT_URL: 'http://localhost:3000/google-auth/redirect'
