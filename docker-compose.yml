@@ -1,0 +1,14 @@
+version: "3.8"
+services:
+  db:
+    container_name: todoit_postgres
+    image: postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: ${TYPEORM_PASSWORD}
+      POSTGRES_USER: ${TYPEORM_USER}
+      POSTGRES_DB:
+    volumes:
+      - .docker-data/postgres:/var/lib/postgresql/data
