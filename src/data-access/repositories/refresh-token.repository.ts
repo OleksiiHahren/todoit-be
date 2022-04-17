@@ -1,10 +1,10 @@
-import { RefreshToken } from 'src/models/entities/refresh-token.entity';
-import { User } from '../../../models/entities/user.entity';
 import { EntityRepository, Repository } from 'typeorm';
+import { UserEntity } from '@root/data-access/entities/user.entity';
+import { RefreshToken } from '@root/data-access/entities/refresh-token.entity';
 
 @EntityRepository(RefreshToken)
 export class RefreshTokensRepository extends Repository<RefreshToken> {
-  public async createRefreshToken(user: User): Promise<RefreshToken> {
+  public async createRefreshToken(user: UserEntity): Promise<RefreshToken> {
     const token = new RefreshToken();
     const today = new Date();
     token.userId = user.id;

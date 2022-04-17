@@ -21,4 +21,8 @@ export class UserRepository
   async findByEmail(email: string) {
     return await this.findOne({ email });
   }
+
+  async findById(id: number) {
+    return await this.findById(id);
+  }
 }

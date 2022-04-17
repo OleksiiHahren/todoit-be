@@ -16,7 +16,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       callbackURL:
         process.env.GOOGLE_REDIRECT_URL ||
         config.get('googleAuth.GOOGLE_REDIRECT_URL'),
-      scope: ['email', 'profile']
+      scope: ['email', 'profile'],
+
     });
   }
 
