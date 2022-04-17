@@ -25,7 +25,13 @@
     "@nestjs/core": "^8.0.0",
     "@nestjs/passport": "^8.2.1",
     "@nestjs/platform-express": "^8.0.0",
+    "@nestjs/swagger": "^5.2.1",
     "@nestjs/typeorm": "^8.0.3",
+    "@types/bcryptjs": "^2.4.2",
+    "bcrypt": "^5.0.1",
+    "bcryptjs": "^2.4.3",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.13.2",
     "config": "^3.3.7",
     "dotenv": "^16.0.0",
     "lodash.get": "^4.4.2",
@@ -36,6 +42,7 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
+    "swagger-ui-express": "^4.3.0",
     "typeorm": "^0.2.43"
   },
   "devDependencies": {

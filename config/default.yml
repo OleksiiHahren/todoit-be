@@ -19,4 +19,6 @@ jwt:
   refreshTokenLife: 86400
   secret: secret
 googleAuth:
-  GOOGLE_REDIRECT_URL: 'http://localhost:3000/google-auth/redirect'
+  GOOGLE_REDIRECT_URL: 'http://localhost:3000/auth/google-redirect'
+  GOOGLE_AUTH_CLIENT_ID: '511298285211-tljvs2vs6c89usmrubp7kqi3493fuqce.apps.googleusercontent.com'
+  GOOGLE_AUTH_SECRET: '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'

@@ -17,4 +17,8 @@ export class UserRepository
   async getMany(pagination: PaginationRequest): Promise<UserEntity[]> {
     return await this.find({ skip: pagination.skip, take: pagination.take });
   }
+
+  async findByEmail(email: string) {
+    return await this.findOne({ email });
+  }
 }
