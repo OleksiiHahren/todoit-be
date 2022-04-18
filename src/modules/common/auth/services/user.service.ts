@@ -17,7 +17,7 @@ export class UserService {
       userData.password = this.genRandomPassword();
     }
     const user = await this.userRepo.createUser(userData);
-    return user
+    return user;
   }
   update() {}
 
