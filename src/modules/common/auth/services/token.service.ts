@@ -39,8 +39,7 @@ export class TokenService {
       expiresIn: process.env.JWT_TOKEN_LIFE,
     };
 
-    const res = await this.jwt.signAsync({}, opts);
-    return res;
+    return await this.jwt.signAsync({}, opts);
   }
 
   public async generateRefreshToken(user: UserEntity): Promise<string> {
