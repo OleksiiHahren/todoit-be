@@ -5,16 +5,13 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Unique,
-  UpdateDateColumn
+  UpdateDateColumn,
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import * as bcrypt from 'bcryptjs';
-
 @Entity()
 @Unique(['email'])
 export class UserEntity extends BaseEntity {
-
-
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -28,7 +25,7 @@ export class UserEntity extends BaseEntity {
   email: string;
 
   @Exclude({ toPlainOnly: true })
-  @Column()
+  @Column({ nullable: true })
   password: string;
 
   @Exclude({ toPlainOnly: true })
@@ -43,12 +40,15 @@ export class UserEntity extends BaseEntity {
   @UpdateDateColumn({ type: 'timestamp' })
   public updatedAt: Date;
 
-  async setSalt() {
+  async createSalt() {
     this.salt = await bcrypt.genSalt();
   }
 
   async validatePassword(password: string): Promise<boolean> {
-    const hash = await bcrypt.hash(password, this.salt);
-    return hash === this.password;
+    return await bcrypt.compare(password, this.salt);
+  }
+
+  async hashPassword(password: string) {
+    this.password = await bcrypt.hash(password, this.salt);
   }
 }
