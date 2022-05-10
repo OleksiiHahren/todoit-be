@@ -14,7 +14,7 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   @ApiOperation({
     summary: 'Google sign-in',
-    description: 'Google sign-in link, it wont be work from Swagger'
+    description: 'Google sign-in link, it wont be work from Swagger',
   })
   async googleSignIn(@Req() request) {}
 
@@ -22,7 +22,7 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   @ApiOperation({
     summary: 'Google sign-in',
-    description: 'Google sign-in redirect link, it wont be work from Swagger'
+    description: 'Google sign-in redirect link, it wont be work from Swagger',
   })
   async googleAuthRedirect(@Req() req) {
     return this.authService.googleAuth(req);
@@ -31,7 +31,7 @@ export class AuthController {
   @Post('/sign-in')
   @ApiOperation({
     summary: 'Sign-in by password',
-    description: 'Sign in by default login and pass'
+    description: 'Sign in by default login and pass',
   })
   signIn(@Body() data) {
     return this.authService.signIn(data);
@@ -40,7 +40,7 @@ export class AuthController {
   @Post('sign-up')
   @ApiOperation({
     summary: 'Registration new user',
-    description: 'User registration follow email and password creation'
+    description: 'User registration follow email and password creation',
   })
   signUp(@Body() data) {
     return this.authService.signUp(data);

@@ -11,7 +11,7 @@ export class AuthService {
     @InjectRepository(UserRepository)
     private userRepo: UserRepository,
     private googleStrategy: GoogleStrategy,
-    private tokenService: TokenService
+    private tokenService: TokenService,
   ) {}
 
   async signIn(data) {
@@ -48,7 +48,7 @@ export class AuthService {
       );
     } else {
       const userData = new UserEntity();
-      userData.firsName = req.firsName;
+      userData.firstName = req.firstName;
 
       const newUser = this.userRepo.create()
     }

@@ -10,13 +10,13 @@ import {
 import { Exclude } from 'class-transformer';
 import * as bcrypt from 'bcryptjs';
 @Entity()
-@Unique(['email'])
+@Unique(['email', 'id'])
 export class UserEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  firsName: string;
+  firstName: string;
 
   @Column()
   lastName: string;
