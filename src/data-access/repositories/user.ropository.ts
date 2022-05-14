@@ -25,7 +25,7 @@ export class UserRepository
   }
 
   async findById(id: number) {
-    return await this.findById(id);
+    return await this.findOne({ id });
   }
 
   async createUser(userData: UserCreateInterface): Promise<UserEntity>;

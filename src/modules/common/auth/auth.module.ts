@@ -9,12 +9,15 @@ import { AuthService } from '@root/modules/common/auth/services/auth.service';
 import { RefreshTokensRepository } from '@root/data-access/repositories/refresh-token.repository';
 import { TokenService } from '@root/modules/common/auth/services/token.service';
 import { JwtModule } from '@nestjs/jwt';
-import { UserResolver } from '@root/data-access/resolvers/user.resolver';
-import { UserService } from '@root/modules/common/auth/services/user.service';
+import { UserResolver } from '@root/modules/common/user/resolvers/user.resolver';
+import { UserService } from '@root/modules/common/user/services/user.service';
+import { AuthResolver } from '@root/modules/common/auth/resolvers/auth.resolver';
+import { UserModule } from '@root/modules/common/user/user.module';
 
 @Module({
   controllers: [AuthController],
   imports: [
+    UserModule,
     JwtModule.register({ secret: process.env.JWT_SECRET }),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     TypeOrmModule.forFeature([UserRepository, RefreshTokensRepository])
@@ -24,8 +27,7 @@ import { UserService } from '@root/modules/common/auth/services/user.service';
     JwtStrategy,
     AuthService,
     TokenService,
-    UserResolver,
-    UserService,
+    AuthResolver,
   ],
 })
 export class AuthModule {}
