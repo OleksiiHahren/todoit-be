@@ -8,7 +8,7 @@ import { ApolloDriver } from '@nestjs/apollo';
 @Module({
   imports: [
     TypeOrmModule.forRoot(typeOrmConfig),
-    GraphQLModule.forRoot({ autoSchemaFile: true, driver: ApolloDriver }),
+    GraphQLModule.forRoot({ autoSchemaFile: true, driver: ApolloDriver, context: ({ req }) => ({ req }) })
   ],
   providers: [ConfigService],
 })

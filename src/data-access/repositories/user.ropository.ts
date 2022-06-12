@@ -31,7 +31,7 @@ export class UserRepository
   async createUser(userData: UserCreateInterface): Promise<UserEntity>;
   async createUser(userData: UserCreatDto): Promise<UserEntity> {
     const userEntity = await this.receivedDataToEntity(userData);
-    return this.save(userEntity);
+    return await this.save(userEntity);
   }
 
   private async receivedDataToEntity(

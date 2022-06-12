@@ -21,22 +21,22 @@ export class AuthService {
   async signIn(data) {
     try {
       const userExist = await this.userRepo.findByEmail(data.email);
-      console.log(userExist);
       if (!userExist) {
         return new InternalServerErrorException('User not exists!');
       }
-      const res = new TokensType();
-      res.refreshToken = await this.tokenService.generateRefreshToken(
-        userExist
-      );
-      res.accessToken = await this.tokenService.generateAccessToken(userExist);
-      res.user = Object.assign(new UserType(), userExist);
+      const res = await this.fillResponse(userExist);
       return res;
     } catch (e) {}
   }
 
   async signUp(data: UserInputType) {
     try {
+      const userExist = await this.userRepo.findByEmail(data.email);
+      if (userExist) {
+        return new InternalServerErrorException('User already exists!');
+      }
+      const user = await this.userRepo.createUser(data);
+      return await this.fillResponse(user);
     } catch (e) {
     }
   }
@@ -48,26 +48,26 @@ export class AuthService {
         HttpStatus.FORBIDDEN,
       );
     }
-    return {
-      message: 'User information from google',
-      user: req.user,
-    };
+    return await this.proceedUserLogicWithGoogleAuth(req);
   }
 
-  private async proceedUserLogicWithGoogleAuth(req) {
-    const userExists = await this.userRepo.findByEmail(req.user.email);
-    if (userExists) {
-      const accessToken = await this.tokenService.generateAccessToken(
-        userExists,
-      );
-      const refreshToken = await this.tokenService.generateRefreshToken(
-        userExists,
-      );
-    } else {
+  private async proceedUserLogicWithGoogleAuth(req): Promise<TokensType> {
+    let user = await this.userRepo.findByEmail(req.user.email);
+    if (!user) {
       const userData = new UserEntity();
       userData.firstName = req.firstName;
-
-      const newUser = this.userRepo.create()
+      user = this.userRepo.create();
     }
+    return this.fillResponse(user);
+  }
+
+  private async fillResponse(user: UserEntity): Promise<TokensType> {
+    const data = new TokensType();
+    data.refreshToken = await this.tokenService.generateRefreshToken(
+      user
+    );
+    data.accessToken = await this.tokenService.generateAccessToken(user);
+    data.user = Object.assign(new UserType(), user);
+    return data;
   }
 }

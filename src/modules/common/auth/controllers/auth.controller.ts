@@ -16,7 +16,8 @@ export class AuthController {
     summary: 'Google sign-in',
     description: 'Google sign-in link, it wont be work from Swagger',
   })
-  async googleSignIn(@Req() request) {}
+  async googleSignIn(@Req() request) {
+  }
 
   @Get('/google-redirect')
   @UseGuards(AuthGuard('google'))
@@ -27,23 +28,4 @@ export class AuthController {
   async googleAuthRedirect(@Req() req) {
     return this.authService.googleAuth(req);
   }
-
-  @Post('/sign-in')
-  @ApiOperation({
-    summary: 'Sign-in by password',
-    description: 'Sign in by default login and pass',
-  })
-  signIn(@Body() data) {
-    return this.authService.signIn(data);
-  }
-
-  @Post('sign-up')
-  @ApiOperation({
-    summary: 'Registration new user',
-    description: 'User registration follow email and password creation',
-  })
-  signUp(@Body() data) {
-    return this.authService.signUp(data);
-  }
-
 }

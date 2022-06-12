@@ -13,13 +13,13 @@ import { JwtService } from '@nestjs/jwt';
 import { SignOptions, TokenExpiredError } from 'jsonwebtoken';
 
 const BASE_OPTIONS: SignOptions = {
-  issuer: 'arrow-security',
-  audience: 'arrow-security',
+  issuer: 'todoit',
+  audience: 'todoit',
 };
 
 export interface RefreshTokenPayload {
   jti: number;
-  sub: number;
+  subject: number;
 }
 
 @Injectable()
@@ -36,10 +36,10 @@ export class TokenService {
     const opts: SignOptions = {
       ...BASE_OPTIONS,
       subject: String(user.id),
-      expiresIn: process.env.JWT_TOKEN_LIFE,
+      expiresIn: '2h',
     };
 
-    return await this.jwt.signAsync({}, opts);
+    return await this.jwt.signAsync(opts);
   }
 
   public async generateRefreshToken(user: UserEntity): Promise<string> {
@@ -49,14 +49,26 @@ export class TokenService {
       ...BASE_OPTIONS,
       subject: String(user.id),
       jwtid: String(token.id),
-      expiresIn: '24h',
+      expiresIn: '24h'
     };
 
     return this.jwt.signAsync({}, opts);
   }
 
+  async validateToken(
+    token,
+  ): Promise<{ user: UserEntity; valid: RefreshToken }> {
+    const valid = this.jwt.verify(token);
+    console.log(valid, 'valid-------');
+    const res = { user: null, valid };
+    if (valid) {
+      res.user = await this.users.findById(valid.subject);
+    }
+    return res;
+  }
+
   public async resolveRefreshToken(
-    encoded: string,
+    encoded: string
   ): Promise<{ user: UserEntity; token: RefreshToken }> {
     const payload = await this.decodeRefreshToken(encoded);
     const token = await this.getStoredTokenFromRefreshTokenPayload(payload);
@@ -110,7 +122,7 @@ export class TokenService {
   private async getUserFromRefreshTokenPayload(
     payload: RefreshTokenPayload,
   ): Promise<UserEntity> {
-    const subId = payload.sub;
+    const subId = payload.subject;
 
     if (!subId) {
       throw new UnprocessableEntityException('Refresh token malformed');

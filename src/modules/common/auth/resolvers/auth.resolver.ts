@@ -1,6 +1,4 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { ParseIntPipe, UseGuards } from '@nestjs/common';
-import { JWTGuard } from '@root/guards/jwt.guard';
+import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { UserInputType } from '@root/modules/common/user/types/user-input.type';
 import { AuthService } from '@root/modules/common/auth/services/auth.service';
 import { TokensType } from '@root/modules/common/auth/types/tokens.type';
@@ -22,4 +20,3 @@ export class AuthResolver {
     return await this.authService.signUp(user);
   }
 }
-
