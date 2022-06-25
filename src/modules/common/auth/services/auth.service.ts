@@ -7,6 +7,9 @@ import { UserEntity } from '@root/data-access/entities/user.entity';
 import { UserInputType } from '@root/modules/common/user/types/user-input.type';
 import { TokensType } from '@root/modules/common/auth/types/tokens.type';
 import { UserType } from '@root/modules/common/user/types/user.type';
+import { ConfigService } from '@root/modules/common/config/config.service';
+
+const config = new ConfigService();
 
 @Injectable()
 export class AuthService {
@@ -41,14 +44,19 @@ export class AuthService {
     }
   }
 
-  async googleAuth(req) {
+  async googleAuth(req, res) {
+    const FERedirectLink = process.env.FE_REDIRECT_URL;
     if (!req.user) {
       return new HttpException(
         { message: 'User not found' },
         HttpStatus.FORBIDDEN,
       );
     }
-    return await this.proceedUserLogicWithGoogleAuth(req);
+    const user = await this.proceedUserLogicWithGoogleAuth(req);
+
+    res.body = user;
+    res.redirect(`${FERedirectLink}?accessToken=
+    ${user.accessToken}&refreshToken=${user.refreshToken}`);
   }
 
   private async proceedUserLogicWithGoogleAuth(req): Promise<TokensType> {

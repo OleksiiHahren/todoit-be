@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from '@root/modules/common/auth/services/auth.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
@@ -25,7 +25,7 @@ export class AuthController {
     summary: 'Google sign-in',
     description: 'Google sign-in redirect link, it wont be work from Swagger',
   })
-  async googleAuthRedirect(@Req() req) {
-    return this.authService.googleAuth(req);
+  async googleAuthRedirect(@Req() req, @Res() res) {
+    return this.authService.googleAuth(req, res);
   }
 }
