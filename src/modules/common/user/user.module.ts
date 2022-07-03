@@ -12,5 +12,4 @@ import { AuthModule } from '@root/modules/common/auth/auth.module';
     TypeOrmModule.forFeature([UserRepository, RefreshTokensRepository])],
   providers: [UserResolver, UserService]
 })
-export class UserModule {
-}
+export class UserModule {}
