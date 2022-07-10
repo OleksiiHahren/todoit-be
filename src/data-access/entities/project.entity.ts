@@ -1,10 +1,9 @@
-import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { Unique } from 'typeorm/browser';
+import { Unique, BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { TaskEntity } from '@root/data-access/entities/task.entity';
 
 @Entity()
+@Unique(['name', 'id'])
 export class ProjectEntity extends BaseEntity {
-  @Unique(['name', 'id'])
 
   @PrimaryGeneratedColumn()
   id: number;

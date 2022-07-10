@@ -1,8 +1,8 @@
 import { BaseEntity, Entity, Column, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
 @Entity()
+@Unique(['userId'])
 export class RefreshToken extends BaseEntity {
-  @Unique(['userId'])
 
   @PrimaryGeneratedColumn()
   id: number;

@@ -5,8 +5,8 @@ import { StatusesEnum } from '@root/data-access/models-enums/statuses.enum';
 import { ReminderEntity } from '@root/data-access/entities/reminder.entity';
 
 @Entity()
+@Unique(['name', 'id'])
 export class TaskEntity extends BaseEntity {
-  @Unique(['name', 'id'])
 
   @PrimaryGeneratedColumn()
   id: number;

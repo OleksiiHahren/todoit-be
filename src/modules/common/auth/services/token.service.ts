@@ -36,10 +36,9 @@ export class TokenService {
     const opts: SignOptions = {
       ...BASE_OPTIONS,
       subject: String(user.id),
-      expiresIn: '2h',
     };
 
-    return await this.jwt.signAsync(opts);
+    return await this.jwt.signAsync(opts, { expiresIn: '1m' });
   }
 
   public async generateRefreshToken(user: UserEntity): Promise<string> {
@@ -49,17 +48,18 @@ export class TokenService {
       ...BASE_OPTIONS,
       subject: String(user.id),
       jwtid: String(token.id),
-      expiresIn: '24h'
+      expiresIn: '2 days'
     };
 
-    return this.jwt.signAsync({}, opts);
+    return this.jwt.signAsync(opts, {
+      expiresIn: '2 days'
+    });
   }
 
   async validateToken(
     token,
   ): Promise<{ user: UserEntity; valid: RefreshToken }> {
-    const valid = this.jwt.verify(token);
-    console.log(valid, 'valid-------');
+    const valid = await this.jwt.verifyAsync(token, { ignoreExpiration: false });
     const res = { user: null, valid };
     if (valid) {
       res.user = await this.users.findById(valid.subject);
@@ -70,13 +70,13 @@ export class TokenService {
   public async resolveRefreshToken(
     encoded: string
   ): Promise<{ user: UserEntity; token: RefreshToken }> {
-    const payload = await this.decodeRefreshToken(encoded);
+    const payload = await this.decodeAndCheckRefreshToken(encoded);
+    console.log('payload--------', payload);
     const token = await this.getStoredTokenFromRefreshTokenPayload(payload);
-
     if (!token) {
       throw new HttpException(
         'Refresh Token does not exist',
-        HttpStatus.UNAUTHORIZED,
+        HttpStatus.UNAUTHORIZED
       );
     }
 
@@ -93,16 +93,16 @@ export class TokenService {
   }
 
   public async createAccessTokenFromRefreshToken(
-    refresh: string,
-  ): Promise<{ token: string; user: UserEntity }> {
+    refresh: string
+  ): Promise<{ token: string }> {
     const { user } = await this.resolveRefreshToken(refresh);
     const token = await this.generateAccessToken(user);
 
-    return { user, token };
+    return { token };
   }
 
-  private async decodeRefreshToken(
-    token: string,
+  private async decodeAndCheckRefreshToken(
+    token: string
   ): Promise<RefreshTokenPayload> {
     try {
       const res = await this.jwt.verifyAsync(token);
@@ -111,7 +111,7 @@ export class TokenService {
       if (e instanceof TokenExpiredError) {
         throw new HttpException(
           'Refresh token expired',
-          HttpStatus.UNAUTHORIZED,
+          HttpStatus.UNAUTHORIZED
         );
       } else {
         throw new UnprocessableEntityException('Refresh token malformed');

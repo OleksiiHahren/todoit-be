@@ -2,8 +2,8 @@ import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn, Unique }
 import { TaskEntity } from '@root/data-access/entities/task.entity';
 
 @Entity()
+@Unique(['name', 'id'])
 export class PriorityEntity extends BaseEntity {
-  @Unique(['name', 'id'])
 
   @PrimaryGeneratedColumn()
   id: number;

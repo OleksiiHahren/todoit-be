@@ -18,7 +18,7 @@ const jwtConfig = config.get('jwt');
   controllers: [AuthController],
   imports: [
     JwtModule.register({
-      secret: process.env.JWT_SECRET || jwtConfig.secret
+      secret: process.env.JWT_SECRET || jwtConfig.secret,
     }),
     PassportModule.register({ defaultStrategy: 'google' }),
     TypeOrmModule.forFeature([UserRepository, RefreshTokensRepository])
