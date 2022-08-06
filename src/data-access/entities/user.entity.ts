@@ -8,6 +8,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
+import { FilterableField } from '@nestjs-query/query-graphql';
+
 import * as bcrypt from 'bcryptjs';
 @Entity()
 @Unique(['email', 'id'])
@@ -22,6 +24,7 @@ export class UserEntity extends BaseEntity {
   lastName: string;
 
   @Column()
+  @FilterableField()
   email: string;
 
   @Exclude({ toPlainOnly: true })

@@ -1,20 +1,24 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { FilterableField, IDField } from '@nestjs-query/query-graphql';
 
 @ObjectType('User')
 export class UserType {
 
-  @Field(type => ID)
+  @IDField(type => ID)
   id: string;
 
-  @Field()
+  @FilterableField()
   firstName: string;
 
-  @Field()
+  @FilterableField()
   lastName: string;
 
-  @Field()
+  @FilterableField()
   email: string;
 
-  @Field({ nullable: true })
+  @FilterableField()
   createdAt: string;
+
+
 }
+

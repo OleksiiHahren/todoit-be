@@ -1,15 +1,25 @@
+import { NestjsQueryGraphQLModule } from '@nestjs-query/query-graphql';
+import { NestjsQueryTypeOrmModule } from '@nestjs-query/query-typeorm';
 import { Module } from '@nestjs/common';
-import { UserResolver } from '@root/modules/common/user/resolvers/user.resolver';
+import { UserEntity } from '@root/data-access/entities/user.entity';
+import { UserType } from '@root/modules/common/user/types/user.type';
+import { UserAssembler } from '@root/modules/common/user/assembler/user.assembler';
 import { UserService } from '@root/modules/common/user/services/user.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserRepository } from '@root/data-access/repositories/user.ropository';
-import { RefreshTokensRepository } from '@root/data-access/repositories/refresh-token.repository';
-import { AuthModule } from '@root/modules/common/auth/auth.module';
+
 
 @Module({
+  providers: [UserService],
   imports: [
-    AuthModule,
-    TypeOrmModule.forFeature([UserRepository, RefreshTokensRepository])],
-  providers: [UserResolver, UserService]
+    NestjsQueryGraphQLModule.forFeature({
+      imports: [NestjsQueryTypeOrmModule.forFeature([UserEntity])],
+      assemblers: [UserAssembler],
+      resolvers: [
+        {
+          DTOClass: UserType,
+          EntityClass: UserEntity,
+        },
+      ],
+    }),
+  ],
 })
 export class UserModule {}

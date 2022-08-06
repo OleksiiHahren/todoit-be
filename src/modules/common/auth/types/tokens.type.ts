@@ -1,14 +1,16 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { UserType } from '@root/modules/common/user/types/user.type';
+import { FilterableField } from '@nestjs-query/query-graphql';
 
-@ObjectType('TokensType')
+@ObjectType('Token')
 export class TokensType {
-  @Field({ nullable: true })
+
+  @FilterableField()
   refreshToken: string;
 
-  @Field()
+  @FilterableField()
   accessToken: string;
 
-  @Field(() => UserType)
-  user: UserType;
+ /* @FilterableField(() => UserType)
+  user: UserType;*/
 }

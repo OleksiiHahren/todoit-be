@@ -1,10 +1,11 @@
 import { BadRequestException, CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { TokenService } from '@root/modules/common/auth/services/token.service';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class GqlAuthGuard implements CanActivate {
-  constructor(private readonly tokenService: TokenService) {}
+/*  constructor(private readonly tokenService: TokenService) {}
 
   getRequest(context: ExecutionContext) {
     const ctx = GqlExecutionContext.create(context);
@@ -31,5 +32,8 @@ export class GqlAuthGuard implements CanActivate {
       return true;
     }
     throw new UnauthorizedException('Token not valid');
+  }*/
+  canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
+    return
   }
 }

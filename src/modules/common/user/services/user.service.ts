@@ -1,40 +1,31 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { UserRepository } from '@root/data-access/repositories/user.ropository';
+import { Filter, InjectAssemblerQueryService, InjectQueryService, QueryService } from '@nestjs-query/core';
+import { ConnectionType } from '@nestjs-query/query-graphql';
+import { Args, Query, Resolver } from '@nestjs/graphql';
 import { UserEntity } from '@root/data-access/entities/user.entity';
-import { UserCreateInterface } from '@root/modules/common/auth/interfaces/user-create.interface';
-import { UserInputType } from '@root/modules/common/user/types/user-input.type';
+import { UserConnection, UserQuery } from '@root/modules/common/user/types/user-connection.dto';
+import { UserType } from '@root/modules/common/user/types/user.type';
 
-@Injectable()
+@Resolver(() => UserType)
 export class UserService {
-  constructor(
-    @InjectRepository(UserRepository) private userRepo: UserRepository
+  constructor(@InjectQueryService(UserEntity) readonly service: QueryService<UserType>
   ) {
   }
 
-  async create(userData: UserInputType): Promise<UserEntity>;
-  async create(userData: UserCreateInterface): Promise<UserEntity> {
-    if (!userData?.password) {
-      userData.password = this.genRandomPassword();
-    }
-    return await this.userRepo.createUser(userData);
-  }
 
-  async update(userData: UserInputType) {
-    const existUser = await this.userRepo.findByEmail(userData.email);
-    if (!existUser) {
-      return new InternalServerErrorException('User not exists!');
-    }
-    const updatedValues = Object.assign(existUser, userData);
-    await updatedValues.hashPassword(userData.password);
-    return this.userRepo.save({ id: existUser.id, ...updatedValues });
-  }
+  @Query(() => UserConnection)
+  completedTodoItems(
+    @Args() query: UserQuery
+  ): Promise<ConnectionType<UserType>> {
+    // add the completed filter the user provided filter
+    const filter: Filter<UserType> = {
+      ...query.filter,
+      ...{ firstName: { eq: 'olek' } }
+    };
 
-  async getById(id: number): Promise<UserEntity> {
-    return await this.userRepo.findById(id);
-  }
-
-  private genRandomPassword() {
-    return (Math.random() + 10).toString(32).substring(2);
+    return UserConnection.createFromPromise((q) =>
+      this.service.query(q), {
+      ...query,
+      ...{ filter }
+    });
   }
 }

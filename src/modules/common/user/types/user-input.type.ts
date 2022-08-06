@@ -1,19 +1,19 @@
-import { Field, InputType } from '@nestjs/graphql';
-import { IsEmail } from 'class-validator';
+import { Field, InputType, ObjectType } from '@nestjs/graphql';
+import { IsEmail, IsString } from 'class-validator';
+import { FilterableField } from '@nestjs-query/query-graphql';
 
-@InputType()
+@InputType('UserInputType')
 export class UserInputType {
-  @Field()
+  @FilterableField()
+  id: number;
+
+  @FilterableField()
   firstName: string;
 
-  @Field()
+  @FilterableField()
   lastName: string;
 
-  @Field()
+  @FilterableField()
   @IsEmail()
   email: string;
-
-  @Field()
-  @IsEmail()
-  password: string;
 }
