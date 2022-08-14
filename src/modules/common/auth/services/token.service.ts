@@ -4,68 +4,85 @@ import {
   Injectable,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { UserRepository } from '@root/data-access/repositories/user.ropository';
-import { InjectRepository } from '@nestjs/typeorm';
-import { RefreshTokensRepository } from '@root/data-access/repositories/refresh-token.repository';
 import { UserEntity } from '@root/data-access/entities/user.entity';
 import { RefreshToken } from '@root/data-access/entities/refresh-token.entity';
 import { JwtService } from '@nestjs/jwt';
 import { SignOptions, TokenExpiredError } from 'jsonwebtoken';
-
+import { QueryService, InjectQueryService } from '@nestjs-query/core';
 const BASE_OPTIONS: SignOptions = {
-  issuer: 'arrow-security',
-  audience: 'arrow-security',
+  issuer: 'todoit',
+  audience: 'todoit',
 };
 
 export interface RefreshTokenPayload {
   jti: number;
-  sub: number;
+  subject: number;
 }
 
 @Injectable()
 export class TokenService {
   constructor(
-    @InjectRepository(UserRepository)
-    private users: UserRepository,
-    @InjectRepository(RefreshTokensRepository)
-    private tokens: RefreshTokensRepository,
-    private jwt: JwtService,
+    @InjectQueryService(UserEntity) readonly users: QueryService<UserEntity>,
+    @InjectQueryService(RefreshToken)
+    readonly tokens: QueryService<RefreshToken>,
+    private jwt: JwtService
   ) {}
 
   public async generateAccessToken(user: UserEntity): Promise<string> {
-    const opts: SignOptions = {
-      ...BASE_OPTIONS,
-      subject: String(user.id),
-      expiresIn: process.env.JWT_TOKEN_LIFE,
-    };
+    try {
+      const opts: SignOptions = {
+        ...BASE_OPTIONS,
+        subject: String(user.id),
+        expiresIn: '5m'
+      };
 
-    const res = await this.jwt.signAsync({}, opts);
-    return res;
+      return await this.jwt.signAsync(opts, { expiresIn: '1m' });
+    } catch (e) {
+      console.error(e);
+    }
+
   }
 
   public async generateRefreshToken(user: UserEntity): Promise<string> {
-    const token = await this.tokens.createRefreshToken(user);
+    try {
+      const token = await this.createRefreshToken(user);
 
-    const opts: SignOptions = {
-      ...BASE_OPTIONS,
-      subject: String(user.id),
-      jwtid: String(token.id),
-      expiresIn: '24h',
-    };
+      const opts: SignOptions = {
+        ...BASE_OPTIONS,
+        subject: String(user.id),
+        jwtid: String(token.id),
+        expiresIn: '2d'
+      };
 
-    return this.jwt.signAsync({}, opts);
+      return this.jwt.signAsync(opts, {
+        expiresIn: '2d'
+      });
+    } catch (e) {
+      console.error(e.message);
+    }
+
+  }
+
+  async validateToken(
+    token,
+  ): Promise<{ user: UserEntity; valid: RefreshToken }> {
+    const valid = await this.jwt.verifyAsync(token, { ignoreExpiration: false });
+    const res = { user: null, valid };
+    if (valid) {
+      res.user = await this.users.findById(valid.subject);
+    }
+    return res;
   }
 
   public async resolveRefreshToken(
-    encoded: string,
+    encoded: string
   ): Promise<{ user: UserEntity; token: RefreshToken }> {
-    const payload = await this.decodeRefreshToken(encoded);
+    const payload = await this.decodeAndCheckRefreshToken(encoded);
     const token = await this.getStoredTokenFromRefreshTokenPayload(payload);
-
     if (!token) {
       throw new HttpException(
         'Refresh Token does not exist',
-        HttpStatus.UNAUTHORIZED,
+        HttpStatus.UNAUTHORIZED
       );
     }
 
@@ -82,16 +99,16 @@ export class TokenService {
   }
 
   public async createAccessTokenFromRefreshToken(
-    refresh: string,
-  ): Promise<{ token: string; user: UserEntity }> {
+    refresh: string
+  ): Promise<{ token: string }> {
     const { user } = await this.resolveRefreshToken(refresh);
     const token = await this.generateAccessToken(user);
 
-    return { user, token };
+    return { token };
   }
 
-  private async decodeRefreshToken(
-    token: string,
+  private async decodeAndCheckRefreshToken(
+    token: string
   ): Promise<RefreshTokenPayload> {
     try {
       const res = await this.jwt.verifyAsync(token);
@@ -100,7 +117,7 @@ export class TokenService {
       if (e instanceof TokenExpiredError) {
         throw new HttpException(
           'Refresh token expired',
-          HttpStatus.UNAUTHORIZED,
+          HttpStatus.UNAUTHORIZED
         );
       } else {
         throw new UnprocessableEntityException('Refresh token malformed');
@@ -111,7 +128,7 @@ export class TokenService {
   private async getUserFromRefreshTokenPayload(
     payload: RefreshTokenPayload,
   ): Promise<UserEntity> {
-    const subId = payload.sub;
+    const subId = payload.subject;
 
     if (!subId) {
       throw new UnprocessableEntityException('Refresh token malformed');
@@ -121,13 +138,33 @@ export class TokenService {
   }
 
   private async getStoredTokenFromRefreshTokenPayload(
-    payload: RefreshTokenPayload,
+    payload: RefreshTokenPayload
   ): Promise<RefreshToken | null> {
     const tokenId = payload.jti;
     if (!tokenId) {
       throw new UnprocessableEntityException('Refresh token malformed');
     }
 
-    return this.tokens.findTokenById(tokenId);
+    return this.tokens.findById(tokenId);
+  }
+
+  private async createRefreshToken(user): Promise<RefreshToken> {
+    try {
+      const token = new RefreshToken();
+      const today = new Date();
+      token.userId = user.id;
+      token.isRevoked = false;
+      token.expires = new Date(today.setHours(today.getHours() + 24));
+      const [userTokenExist] = await this.tokens.query({
+        filter: { userId: { eq: user.id } }
+      });
+      if (userTokenExist) {
+        const id = userTokenExist.id;
+        await this.tokens.deleteOne(id);
+      }
+      return token.save();
+    } catch (e) {
+      console.error(e);
+    }
   }
 }

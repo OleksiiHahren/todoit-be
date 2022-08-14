@@ -4,6 +4,8 @@ import {
   PaginationRequest,
   RegularRepositoryInterface,
 } from '@root/data-access/interfaces/regular-repository.interface';
+import { UserCreateInterface } from '@root/modules/common/auth/interfaces/user-create.interface';
+import { UserCreatDto } from '@root/modules/common/auth/dto/user-creat.dto';
 
 @EntityRepository(UserEntity)
 export class UserRepository
@@ -23,6 +25,25 @@ export class UserRepository
   }
 
   async findById(id: number) {
-    return await this.findById(id);
+    return await this.findOne({ id });
+  }
+
+  async createUser(userData: UserCreateInterface): Promise<UserEntity>;
+  async createUser(userData: UserCreatDto): Promise<UserEntity> {
+    const userEntity = await this.receivedDataToEntity(userData);
+    return await this.save(userEntity);
+  }
+
+  private async receivedDataToEntity(
+    data: UserCreateInterface,
+  ): Promise<UserEntity>;
+  private async receivedDataToEntity(data: UserCreatDto): Promise<UserEntity> {
+    const resData = new UserEntity();
+    await resData.createSalt();
+    await resData.hashPassword(data.password);
+    resData.firstName = data.firstName;
+    resData.lastName = data.lastName;
+    resData.email = data.email;
+    return resData
   }
 }
