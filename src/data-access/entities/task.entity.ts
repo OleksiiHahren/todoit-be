@@ -14,16 +14,19 @@ export class TaskEntity extends BaseEntity {
   @Column()
   name: string;
 
-  @ManyToOne(() => ProjectEntity, (project) => project.tasks)
+  @ManyToOne(() => ProjectEntity, (project) => project.tasks,
+    { nullable: true })
   project: ProjectEntity;
 
   @Column({ nullable: true })
   deadLine: Date;
 
-  @ManyToOne(() => PriorityEntity, (priority) => priority.tasks)
+  @ManyToOne(() => PriorityEntity, (priority) => priority.tasks,
+    { nullable: true })
   priority: PriorityEntity;
 
-  @OneToOne(() => ReminderEntity, (reminder) => reminder.task)
+  @OneToOne(() => ReminderEntity, (reminder) => reminder.task,
+    { nullable: true })
   remind: ReminderEntity;
 
   @Column({ default: StatusesEnum.relevant })

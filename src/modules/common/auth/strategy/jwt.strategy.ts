@@ -12,7 +12,7 @@ const jwtSecret = config.get('jwt.secret');
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
-/*  constructor(@InjectRepository(UserRepository) private users: UserRepository) {
+  constructor(@InjectRepository(UserRepository) private users: UserRepository) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
@@ -24,5 +24,5 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   async validate(payload: RefreshTokenPayload): Promise<UserEntity> {
     const { subject: id } = payload;
     return await this.users.findOneOrFail(id);
-  }*/
+  }
 }

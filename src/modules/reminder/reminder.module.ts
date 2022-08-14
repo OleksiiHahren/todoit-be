@@ -1,19 +1,19 @@
 import { Module } from '@nestjs/common';
+import { ReminderService } from '@root/modules/reminder/services/reminder.service';
 import { NestjsQueryGraphQLModule } from '@nestjs-query/query-graphql';
-import { ProjectService } from '@root/modules/projects/services/project.service';
-import { NestjsQueryTypeOrmModule } from '@nestjs-query/query-typeorm';
-import { ProjectEntity } from '@root/data-access/entities/project.entity';
-import { GqlAuthGuard } from '@root/guards/jwt.guard';
-import { ProjectDto } from '@root/modules/projects/types/project.type';
 import { CommonModule } from '@root/modules/common/common.module';
+import { NestjsQueryTypeOrmModule } from '@nestjs-query/query-typeorm';
+import { GqlAuthGuard } from '@root/guards/jwt.guard';
+import { ReminderEntity } from '@root/data-access/entities/reminder.entity';
+import { ReminderDto } from '@root/modules/reminder/dto/reminder.dto';
 
 @Module({
-  providers: [ProjectService],
+  providers: [ReminderService],
   imports: [
     NestjsQueryGraphQLModule.forFeature({
       imports: [
         CommonModule,
-        NestjsQueryTypeOrmModule.forFeature([ProjectEntity]),
+        NestjsQueryTypeOrmModule.forFeature([ReminderEntity]),
       ],
       assemblers: [],
       resolvers: [
@@ -21,12 +21,12 @@ import { CommonModule } from '@root/modules/common/common.module';
           create: { many: { disabled: true } },
           delete: { many: { disabled: true } },
           update: { many: { disabled: true } },
-          DTOClass: ProjectDto,
-          EntityClass: ProjectEntity,
+          DTOClass: ReminderDto,
+          EntityClass: ReminderEntity,
           guards: [GqlAuthGuard],
         },
       ],
     }),
-  ],
+  ]
 })
-export class ProjectsModule {}
+export class ReminderModule {}

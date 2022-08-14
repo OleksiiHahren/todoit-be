@@ -1,8 +1,8 @@
-import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { ID, ObjectType } from '@nestjs/graphql';
 import { FilterableField } from '@nestjs-query/query-graphql';
 
-@ObjectType('Project')
-export class ProjectDto {
+@ObjectType('priority')
+export class PriorityDto {
   @FilterableField(type => ID)
   id: string;
 
@@ -14,5 +14,4 @@ export class ProjectDto {
 
   @FilterableField()
   favorite: boolean;
-
 }

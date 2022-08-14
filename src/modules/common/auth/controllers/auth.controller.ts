@@ -7,7 +7,7 @@ import { AuthGuard } from '@nestjs/passport';
 @Controller('auth')
 @ApiTags('Authentication')
 export class AuthController {
- /* constructor(private authService: AuthService) {
+  constructor(private authService: AuthService) {
   }
 
   @Get('/google')
@@ -27,5 +27,5 @@ export class AuthController {
   })
   async googleAuthRedirect(@Req() req, @Res() res) {
     return this.authService.googleAuth(req, res);
-  }*/
+  }
 }

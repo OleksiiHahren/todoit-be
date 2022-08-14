@@ -1,19 +1,17 @@
 import { Module } from '@nestjs/common';
 import { NestjsQueryGraphQLModule } from '@nestjs-query/query-graphql';
-import { ProjectService } from '@root/modules/projects/services/project.service';
 import { NestjsQueryTypeOrmModule } from '@nestjs-query/query-typeorm';
-import { ProjectEntity } from '@root/data-access/entities/project.entity';
 import { GqlAuthGuard } from '@root/guards/jwt.guard';
-import { ProjectDto } from '@root/modules/projects/types/project.type';
 import { CommonModule } from '@root/modules/common/common.module';
+import { PriorityEntity } from '@root/data-access/entities/priority.entity';
+import { PriorityDto } from '@root/modules/priorities/dto/priority.dto';
 
 @Module({
-  providers: [ProjectService],
   imports: [
     NestjsQueryGraphQLModule.forFeature({
       imports: [
         CommonModule,
-        NestjsQueryTypeOrmModule.forFeature([ProjectEntity]),
+        NestjsQueryTypeOrmModule.forFeature([PriorityEntity]),
       ],
       assemblers: [],
       resolvers: [
@@ -21,12 +19,12 @@ import { CommonModule } from '@root/modules/common/common.module';
           create: { many: { disabled: true } },
           delete: { many: { disabled: true } },
           update: { many: { disabled: true } },
-          DTOClass: ProjectDto,
-          EntityClass: ProjectEntity,
+          DTOClass: PriorityDto,
+          EntityClass: PriorityEntity,
           guards: [GqlAuthGuard],
         },
       ],
     }),
-  ],
+  ]
 })
-export class ProjectsModule {}
+export class PrioritiesModule {}

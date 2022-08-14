@@ -23,35 +23,44 @@ export interface RefreshTokenPayload {
 export class TokenService {
   constructor(
     @InjectQueryService(UserEntity) readonly users: QueryService<UserEntity>,
-    /*@InjectRepository(UserRepository)
-    private users: UserRepository,*/
     @InjectQueryService(RefreshToken)
     readonly tokens: QueryService<RefreshToken>,
     private jwt: JwtService
   ) {}
 
   public async generateAccessToken(user: UserEntity): Promise<string> {
-    const opts: SignOptions = {
-      ...BASE_OPTIONS,
-      subject: String(user.id),
-    };
+    try {
+      const opts: SignOptions = {
+        ...BASE_OPTIONS,
+        subject: String(user.id),
+        expiresIn: '5m'
+      };
 
-    return await this.jwt.signAsync(opts, { expiresIn: '1m' });
+      return await this.jwt.signAsync(opts, { expiresIn: '1m' });
+    } catch (e) {
+      console.error(e);
+    }
+
   }
 
   public async generateRefreshToken(user: UserEntity): Promise<string> {
-    const token = await this.createRefreshToken(user);
+    try {
+      const token = await this.createRefreshToken(user);
 
-    const opts: SignOptions = {
-      ...BASE_OPTIONS,
-      subject: String(user.id),
-      jwtid: String(token.id),
-      expiresIn: '2 days'
-    };
+      const opts: SignOptions = {
+        ...BASE_OPTIONS,
+        subject: String(user.id),
+        jwtid: String(token.id),
+        expiresIn: '2d'
+      };
 
-    return this.jwt.signAsync(opts, {
-      expiresIn: '2 days'
-    });
+      return this.jwt.signAsync(opts, {
+        expiresIn: '2d'
+      });
+    } catch (e) {
+      console.error(e.message);
+    }
+
   }
 
   async validateToken(
@@ -140,18 +149,22 @@ export class TokenService {
   }
 
   private async createRefreshToken(user): Promise<RefreshToken> {
-    const token = new RefreshToken();
-    const today = new Date();
-    token.userId = user.id;
-    token.isRevoked = false;
-    token.expires = new Date(today.setHours(today.getHours() + 24));
-    const userTokenExist = this.tokens.query({
-      filter: { userId: { eq: user.id } }
-    });
-    if (userTokenExist) {
-      const id = token.id;
-      await this.tokens.deleteOne(id);
+    try {
+      const token = new RefreshToken();
+      const today = new Date();
+      token.userId = user.id;
+      token.isRevoked = false;
+      token.expires = new Date(today.setHours(today.getHours() + 24));
+      const [userTokenExist] = await this.tokens.query({
+        filter: { userId: { eq: user.id } }
+      });
+      if (userTokenExist) {
+        const id = userTokenExist.id;
+        await this.tokens.deleteOne(id);
+      }
+      return token.save();
+    } catch (e) {
+      console.error(e);
     }
-    return token.save();
   }
 }

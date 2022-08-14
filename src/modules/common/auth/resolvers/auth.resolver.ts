@@ -8,27 +8,28 @@ import { UserType } from '@root/modules/common/user/types/user.type';
 
 @Resolver(() => UserType)
 export class AuthResolver {
-  /*  constructor(
-      private authService: AuthService,
-      private tokenService: TokenService,
-    ) {}
+  constructor(
+    private authService: AuthService,
+    private tokenService: TokenService
+  ) {
+  }
 
-    @Query(() => TokensType)
-    async signIn(@Args('signInData') signInData: SignInType) {
-      return await this.authService.signIn(signInData);
-    }
+  @Query(() => TokensType)
+  async signIn(@Args('signInData') signInData: SignInType) {
+    return await this.authService.signIn(signInData);
+  }
 
-    @Mutation(() => TokensType)
-    async signUp(@Args('user') user: UserInputType
-    ) {
-      return await this.authService.signUp(user);
-    }
+  @Mutation(() => TokensType)
+  async signUp(@Args('user') user: UserInputType
+  ) {
+    return await this.authService.signUp(user);
+  }
 
-    @Mutation(() => TokensType)
-    async refreshToken(@Args('refreshToken') refreshToken: string
-    ) {
-      return await this.tokenService.createAccessTokenFromRefreshToken(
-        refreshToken,
-      );
-    }*/
+  @Mutation(() => TokensType)
+  async refreshToken(@Args('refreshToken') refreshToken: string
+  ) {
+    return await this.tokenService.createAccessTokenFromRefreshToken(
+      refreshToken
+    );
+  }
 }

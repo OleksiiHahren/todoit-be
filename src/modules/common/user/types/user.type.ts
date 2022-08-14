@@ -19,6 +19,5 @@ export class UserType {
   @FilterableField()
   createdAt: string;
 
-
 }
 

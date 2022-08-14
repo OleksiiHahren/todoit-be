@@ -4,6 +4,9 @@ import { Args, Query, Resolver } from '@nestjs/graphql';
 import { UserEntity } from '@root/data-access/entities/user.entity';
 import { UserConnection, UserQuery } from '@root/modules/common/user/types/user-connection.dto';
 import { UserType } from '@root/modules/common/user/types/user.type';
+import { Req, UseGuards } from '@nestjs/common';
+import { CurrentUser } from '@root/decorators/get-user.decorator';
+import { GqlAuthGuard } from '@root/guards/jwt.guard';
 
 @Resolver(() => UserType)
 export class UserService {
@@ -11,21 +14,11 @@ export class UserService {
   ) {
   }
 
-
-  @Query(() => UserConnection)
-  completedTodoItems(
-    @Args() query: UserQuery
-  ): Promise<ConnectionType<UserType>> {
-    // add the completed filter the user provided filter
-    const filter: Filter<UserType> = {
-      ...query.filter,
-      ...{ firstName: { eq: 'olek' } }
-    };
-
-    return UserConnection.createFromPromise((q) =>
-      this.service.query(q), {
-      ...query,
-      ...{ filter }
-    });
+  @Query(() => UserType)
+  @UseGuards(GqlAuthGuard)
+  me(
+    @CurrentUser() user
+  ): Promise<UserType> {
+    return this.service.findById(user.id);
   }
 }

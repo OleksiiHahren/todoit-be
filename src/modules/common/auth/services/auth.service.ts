@@ -6,6 +6,7 @@ import { TokensType } from '@root/modules/common/auth/types/tokens.type';
 import { UserType } from '@root/modules/common/user/types/user.type';
 import { ConfigService } from '@root/modules/common/config/config.service';
 import { QueryService, InjectQueryService } from '@nestjs-query/core';
+import { SignInType } from '@root/modules/common/auth/types/sign-in.type';
 
 const config = new ConfigService();
 
@@ -18,11 +19,12 @@ export class AuthService {
   ) {
   }
 
-  async signIn(data: UserType) {
+  async signIn(data: UserType | SignInType) {
     try {
       const [userExist] = await this.userRepo.query({
         filter: { email: { eq: data.email } }
       });
+
       if (!userExist) {
         return new InternalServerErrorException('User not exists!');
       }
@@ -81,9 +83,8 @@ export class AuthService {
       user
     );
     data.accessToken = await this.tokenService.generateAccessToken(user);
-/*
-    data.user = Object.assign(new UserType(), user);
-*/
+    //data.user = Object.assign(new UserType(), user);
+    console.log(data, 'token data');
     return data;
   }
 }
