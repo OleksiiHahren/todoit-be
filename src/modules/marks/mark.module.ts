@@ -3,15 +3,15 @@ import { NestjsQueryGraphQLModule } from '@nestjs-query/query-graphql';
 import { NestjsQueryTypeOrmModule } from '@nestjs-query/query-typeorm';
 import { GqlAuthGuard } from '@root/guards/jwt.guard';
 import { CommonModule } from '@root/modules/common/common.module';
-import { PriorityEntity } from '@root/data-access/entities/priority.entity';
-import { PriorityDto } from '@root/modules/priorities/dto/priority.dto';
+import { MarkEntity } from '@root/data-access/entities/priority.entity';
+import { MarkDto } from '@root/modules/marks/dto/marks.dto';
 
 @Module({
   imports: [
     NestjsQueryGraphQLModule.forFeature({
       imports: [
         CommonModule,
-        NestjsQueryTypeOrmModule.forFeature([PriorityEntity]),
+        NestjsQueryTypeOrmModule.forFeature([MarkEntity]),
       ],
       assemblers: [],
       resolvers: [
@@ -19,12 +19,12 @@ import { PriorityDto } from '@root/modules/priorities/dto/priority.dto';
           create: { many: { disabled: true } },
           delete: { many: { disabled: true } },
           update: { many: { disabled: true } },
-          DTOClass: PriorityDto,
-          EntityClass: PriorityEntity,
+          DTOClass: MarkDto,
+          EntityClass: MarkEntity,
           guards: [GqlAuthGuard],
         },
       ],
     }),
   ]
 })
-export class PrioritiesModule {}
+export class MarkModule {}

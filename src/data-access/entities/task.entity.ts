@@ -1,6 +1,6 @@
 import { BaseEntity, Column, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
 import { ProjectEntity } from '@root/data-access/entities/project.entity';
-import { PriorityEntity } from '@root/data-access/entities/priority.entity';
+import { MarkEntity } from '@root/data-access/entities/priority.entity';
 import { StatusesEnum } from '@root/data-access/models-enums/statuses.enum';
 import { ReminderEntity } from '@root/data-access/entities/reminder.entity';
 
@@ -19,11 +19,11 @@ export class TaskEntity extends BaseEntity {
   project: ProjectEntity;
 
   @Column({ nullable: true })
-  deadLine: Date;
+  deadline: Date;
 
-  @ManyToOne(() => PriorityEntity, (priority) => priority.tasks,
+  @ManyToOne(() => MarkEntity, (mark) => mark.tasks,
     { nullable: true })
-  priority: PriorityEntity;
+  marks: MarkEntity;
 
   @OneToOne(() => ReminderEntity, (reminder) => reminder.task,
     { nullable: true })

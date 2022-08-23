@@ -1,14 +1,14 @@
 import { Assembler, ClassTransformerAssembler } from '@nestjs-query/core';
-import { UserInputType } from '@root/modules/common/user/types/user-input.type';
 import { UserEntity } from '@root/data-access/entities/user.entity';
 import { DeepPartial } from '@nestjs-query/core/dist/src/common';
+import { UserInputDto } from '@root/modules/common/user/dto/user-input.dto';
 
-@Assembler(UserInputType, UserEntity)
+@Assembler(UserInputDto, UserEntity)
 export class UserInputAssembler extends ClassTransformerAssembler<
-  UserInputType,
+  UserInputDto,
   UserEntity
 > {
-  convertToUpdateEntity(dto: UserInputType): DeepPartial<UserEntity> {
+  convertToUpdateEntity(dto: UserInputDto): DeepPartial<UserEntity> {
     const user = super.convertToUpdateEntity(dto);
     return user;
   }

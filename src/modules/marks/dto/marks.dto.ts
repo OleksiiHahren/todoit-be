@@ -2,7 +2,7 @@ import { ID, ObjectType } from '@nestjs/graphql';
 import { FilterableField } from '@nestjs-query/query-graphql';
 
 @ObjectType('priority')
-export class PriorityDto {
+export class MarkDto {
   @FilterableField(type => ID)
   id: string;
 
@@ -12,6 +12,4 @@ export class PriorityDto {
   @FilterableField()
   color: string;
 
-  @FilterableField()
-  favorite: boolean;
 }

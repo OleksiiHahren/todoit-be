@@ -3,10 +3,10 @@ import { GoogleStrategy } from '@root/modules/common/auth/strategy/google.strate
 import { TokenService } from '@root/modules/common/auth/services/token.service';
 import { UserEntity } from '@root/data-access/entities/user.entity';
 import { TokensType } from '@root/modules/common/auth/types/tokens.type';
-import { UserType } from '@root/modules/common/user/types/user.type';
 import { ConfigService } from '@root/modules/common/config/config.service';
 import { QueryService, InjectQueryService } from '@nestjs-query/core';
 import { SignInType } from '@root/modules/common/auth/types/sign-in.type';
+import { UserDto } from '@root/modules/common/user/dto/user.dto';
 
 const config = new ConfigService();
 
@@ -19,7 +19,7 @@ export class AuthService {
   ) {
   }
 
-  async signIn(data: UserType | SignInType) {
+  async signIn(data: UserDto | SignInType) {
     try {
       const [userExist] = await this.userRepo.query({
         filter: { email: { eq: data.email } }
@@ -36,15 +36,20 @@ export class AuthService {
 
   async signUp(data) {
     try {
-      const [userExist] = await this.userRepo.query({
+      const userExists = await this.userRepo.query({
         filter: {
-          email: data.email
+          email: { eq: data.email }
         }
       });
-      if (userExist) {
+      console.log(userExists, 'here userExist');
+      if (userExists.length) {
         return new InternalServerErrorException('User already exists!');
       }
-      const user = await this.userRepo.createOne(data);
+      const userEntity = new UserEntity(data.password); // TODO send email after registration
+      userEntity.firstName = data.firstName;
+      userEntity.lastName = data.lastName;
+      userEntity.email = data.email;
+      const user = await this.userRepo.createOne(userEntity);
       return await this.fillResponse(user);
     } catch (e) {
     }
@@ -70,8 +75,12 @@ export class AuthService {
       filter: { email: req.email }
     });
     if (!userExist) {
-      const userData = new UserEntity();
+      const temporaryPassword = (Math.random() + 1).toString(36).substring(7);
+      const userData = new UserEntity(temporaryPassword); // TODO send email after registration
       userData.firstName = req.firstName;
+      userData.firstName = req.firstName;
+      userData.lastName = req.lastName;
+      userData.email = req.email;
       userExist = await this.userRepo.createOne(userData);
     }
     return this.fillResponse(userExist);

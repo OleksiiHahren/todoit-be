@@ -16,9 +16,9 @@ export class TaskInputDto {
   @FilterableField()
   deadline: Date;
 
-  @FilterableField(() => ID, { nullable: true })
+  @FilterableField(() => ID,{ nullable: true })
   @IsOptional()
-  priorityId: string;
+  markIds: string[];
 
   @FilterableField(() => ID, { nullable: true })
   @IsOptional()

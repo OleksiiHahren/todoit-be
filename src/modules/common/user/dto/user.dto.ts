@@ -2,7 +2,7 @@ import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { FilterableField, IDField } from '@nestjs-query/query-graphql';
 
 @ObjectType('User')
-export class UserType {
+export class UserDto {
 
   @IDField(type => ID)
   id: string;

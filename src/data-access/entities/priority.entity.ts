@@ -1,9 +1,9 @@
-import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import { BaseEntity, Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn, Unique } from 'typeorm';
 import { TaskEntity } from '@root/data-access/entities/task.entity';
 
 @Entity()
 @Unique(['name', 'id'])
-export class PriorityEntity extends BaseEntity {
+export class MarkEntity extends BaseEntity {
 
   @PrimaryGeneratedColumn()
   id: number;
@@ -17,7 +17,7 @@ export class PriorityEntity extends BaseEntity {
   @Column({ default: false })
   favorite: boolean;
 
-  @OneToMany(() => TaskEntity, (tasks) => tasks.priority)
+  @ManyToMany(() => TaskEntity, (tasks) => tasks.marks)
   tasks: TaskEntity[];
 
 }

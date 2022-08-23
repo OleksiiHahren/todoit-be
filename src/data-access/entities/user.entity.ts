@@ -5,15 +5,23 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Unique,
-  UpdateDateColumn,
+  UpdateDateColumn
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { FilterableField } from '@nestjs-query/query-graphql';
 
 import * as bcrypt from 'bcryptjs';
+import { genSaltSync } from 'bcryptjs';
+
 @Entity()
 @Unique(['email', 'id'])
 export class UserEntity extends BaseEntity {
+  constructor(password) {
+    super();
+    this.salt = genSaltSync();
+    this.password = bcrypt.hashSync(password || '', this.salt);
+  }
+
   @PrimaryGeneratedColumn()
   id: number;
 
