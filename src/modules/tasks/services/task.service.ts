@@ -8,9 +8,10 @@ import { ProjectEntity } from '@root/data-access/entities/project.entity';
 import { ProjectDto } from '@root/modules/projects/types/project.type';
 import { MarkEntity } from '@root/data-access/entities/priority.entity';
 import { MarkDto } from '@root/modules/marks/dto/marks.dto';
-import { Inject } from '@nestjs/common';
+import { Inject, UseGuards, UseInterceptors } from '@nestjs/common';
 import * as moment from 'moment';
 import { PaginationDto } from '@root/modules/common/dto/pagination.dto';
+import { GqlAuthGuard } from '@root/guards/jwt.guard';
 
 @Resolver(() => TaskDto)
 export class TaskService {
@@ -32,6 +33,7 @@ export class TaskService {
 
 
   @Query(() => [TaskDto])
+  @UseGuards(GqlAuthGuard)
   async tasksForToday(@Args('paging') paging: PaginationDto) {
     const { offset, limit } = paging;
     const tomorrow = this.momentWrapper.add(1, 'd').toDate();
@@ -48,6 +50,7 @@ export class TaskService {
   }
 
   @Query(() => [TaskDto])
+  @UseGuards(GqlAuthGuard)
   async tasksForTomorrow(@Args('paging') paging: PaginationDto) {
     const { offset, limit } = paging;
     const dayAfterTomorrow = this.momentWrapper.add(1, 'd').startOf('d').toDate();
@@ -63,6 +66,7 @@ export class TaskService {
   }
 
   @Query(() => [TaskDto])
+  @UseGuards(GqlAuthGuard)
   async taskIncomes(@Args('paging') paging: PaginationDto) {
     const { offset, limit } = paging;
     const todayStart = this.momentWrapper.startOf('d').toDate();
@@ -84,6 +88,7 @@ export class TaskService {
   }
 
   @Mutation(() => TaskDto)
+  @UseGuards(GqlAuthGuard)
   async createTaskWithAllDetails(@Args('data') data: TaskInputDto) {
     const { projectId, markIds, reminderId } = data;
     const task = await this.serviceTask.createOne(data);

@@ -1,17 +1,18 @@
 import {
   HttpException,
   HttpStatus,
-  Injectable,
-  UnprocessableEntityException,
+  Injectable, InternalServerErrorException, UnauthorizedException,
+  UnprocessableEntityException
 } from '@nestjs/common';
 import { UserEntity } from '@root/data-access/entities/user.entity';
 import { RefreshToken } from '@root/data-access/entities/refresh-token.entity';
 import { JwtService } from '@nestjs/jwt';
 import { SignOptions, TokenExpiredError } from 'jsonwebtoken';
 import { QueryService, InjectQueryService } from '@nestjs-query/core';
+
 const BASE_OPTIONS: SignOptions = {
   issuer: 'todoit',
-  audience: 'todoit',
+  audience: 'todoit'
 };
 
 export interface RefreshTokenPayload {
@@ -26,7 +27,8 @@ export class TokenService {
     @InjectQueryService(RefreshToken)
     readonly tokens: QueryService<RefreshToken>,
     private jwt: JwtService
-  ) {}
+  ) {
+  }
 
   public async generateAccessToken(user: UserEntity): Promise<string> {
     try {
@@ -64,14 +66,16 @@ export class TokenService {
   }
 
   async validateToken(
-    token,
+    token
   ): Promise<{ user: UserEntity; valid: RefreshToken }> {
-    const valid = await this.jwt.verifyAsync(token, { ignoreExpiration: false });
-    const res = { user: null, valid };
-    if (valid) {
+    try {
+      const valid = this.jwt.verify(token, { ignoreExpiration: false });
+      const res = { user: null, valid };
       res.user = await this.users.findById(valid.subject);
+      return res;
+    } catch (e) {
+      new UnauthorizedException(e.message);
     }
-    return res;
   }
 
   public async resolveRefreshToken(
@@ -91,7 +95,7 @@ export class TokenService {
     if (!user) {
       throw new HttpException(
         'Refresh token malformed',
-        HttpStatus.UNAUTHORIZED,
+        HttpStatus.UNAUTHORIZED
       );
     }
 
@@ -126,7 +130,7 @@ export class TokenService {
   }
 
   private async getUserFromRefreshTokenPayload(
-    payload: RefreshTokenPayload,
+    payload: RefreshTokenPayload
   ): Promise<UserEntity> {
     const subId = payload.subject;
 

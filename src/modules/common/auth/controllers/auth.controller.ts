@@ -17,6 +17,8 @@ export class AuthController {
     description: 'Google sign-in link, it wont be work from Swagger',
   })
   async googleSignIn(@Req() request) {
+    console.log(request );
+
   }
 
   @Get('/google-redirect')
@@ -26,6 +28,9 @@ export class AuthController {
     description: 'Google sign-in redirect link, it wont be work from Swagger',
   })
   async googleAuthRedirect(@Req() req, @Res() res) {
+    console.log(req, 'redirect!!!!!!!!!!!!!');
+    console.log(res, 'res!!!!!!!!!!!!!');
+
     return this.authService.googleAuth(req, res);
   }
 }

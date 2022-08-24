@@ -41,7 +41,6 @@ export class AuthService {
           email: { eq: data.email }
         }
       });
-      console.log(userExists, 'here userExist');
       if (userExists.length) {
         return new InternalServerErrorException('User already exists!');
       }
@@ -72,7 +71,7 @@ export class AuthService {
 
   private async proceedUserLogicWithGoogleAuth(req): Promise<TokensType> {
     let [userExist] = await this.userRepo.query({
-      filter: { email: req.email }
+      filter: { email: { eq: req.user.email } }
     });
     if (!userExist) {
       const temporaryPassword = (Math.random() + 1).toString(36).substring(7);
@@ -92,8 +91,6 @@ export class AuthService {
       user
     );
     data.accessToken = await this.tokenService.generateAccessToken(user);
-    //data.user = Object.assign(new UserType(), user);
-    console.log(data, 'token data');
     return data;
   }
 }

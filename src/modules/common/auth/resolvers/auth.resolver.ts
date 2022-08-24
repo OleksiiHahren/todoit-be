@@ -4,7 +4,6 @@ import { TokensType } from '@root/modules/common/auth/types/tokens.type';
 import { SignInType } from '@root/modules/common/auth/types/sign-in.type';
 import { TokenService } from '@root/modules/common/auth/services/token.service';
 import { UserCreationDto } from '@root/modules/common/user/dto/user-creation.dto';
-import { UserInputDto } from '@root/modules/common/user/dto/user-input.dto';
 
 @Resolver(() => TokensType)
 export class AuthResolver {

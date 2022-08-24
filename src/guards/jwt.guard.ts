@@ -5,7 +5,8 @@ import { Observable } from 'rxjs';
 
 @Injectable()
 export class GqlAuthGuard implements CanActivate {
-  constructor(private readonly tokenService: TokenService) {}
+  constructor(private readonly tokenService: TokenService) {
+  }
 
   getRequest(context: ExecutionContext) {
     const ctx = GqlExecutionContext.create(context);
@@ -23,15 +24,15 @@ export class GqlAuthGuard implements CanActivate {
     if (type !== 'Bearer') {
       throw new BadRequestException(`Authentication type \'Bearer\' required. Found \'${type}\'`);
     }
-    const { valid, user } = await this.tokenService.validateToken(
+    const res = await this.tokenService.validateToken(
       token
     );
-    console.log(valid, user, '-----------------------')
-    if (valid) {
-      req.user = user;
+    if (res?.valid) {
+      req.user = res?.user;
       return true;
     }
-    throw new UnauthorizedException('Token not valid');
+    console.log('here we gooo');
+    throw new UnauthorizedException({ message: 'Token not valid' });
   }
 
 }
