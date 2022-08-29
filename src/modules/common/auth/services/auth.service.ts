@@ -86,11 +86,16 @@ export class AuthService {
   }
 
   private async fillResponse(user: UserEntity): Promise<TokensType> {
-    const data = new TokensType();
-    data.refreshToken = await this.tokenService.generateRefreshToken(
-      user
-    );
-    data.accessToken = await this.tokenService.generateAccessToken(user);
-    return data;
+    try {
+      const data = new TokensType();
+      data.refreshToken = await this.tokenService.generateRefreshToken(
+        user
+      );
+      data.accessToken = await this.tokenService.generateAccessToken(user);
+      return data;
+    } catch (e) {
+      console.error(e.message)
+    }
+
   }
 }

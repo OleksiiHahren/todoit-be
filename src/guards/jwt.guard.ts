@@ -31,8 +31,6 @@ export class GqlAuthGuard implements CanActivate {
       req.user = res?.user;
       return true;
     }
-    console.log('here we gooo');
     throw new UnauthorizedException({ message: 'Token not valid' });
   }
-
 }
