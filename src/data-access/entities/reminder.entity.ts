@@ -1,6 +1,7 @@
-import { BaseEntity, Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { StatusesEnum } from '@root/data-access/models-enums/statuses.enum';
 import { TaskEntity } from '@root/data-access/entities/task.entity';
+import { UserEntity } from '@root/data-access/entities/user.entity';
 
 @Entity()
 export class ReminderEntity extends BaseEntity {
@@ -18,4 +19,5 @@ export class ReminderEntity extends BaseEntity {
 
   @Column({ default: StatusesEnum.relevant })
   status: StatusesEnum;
+
 }

@@ -70,16 +70,18 @@ export class AuthService {
   }
 
   private async proceedUserLogicWithGoogleAuth(req): Promise<TokensType> {
+    console.log(req, '----------req');
     let [userExist] = await this.userRepo.query({
       filter: { email: { eq: req.user.email } }
     });
+    console.log(userExist, 'userExist ---------');
     if (!userExist) {
       const temporaryPassword = (Math.random() + 1).toString(36).substring(7);
       const userData = new UserEntity(temporaryPassword); // TODO send email after registration
-      userData.firstName = req.firstName;
-      userData.firstName = req.firstName;
-      userData.lastName = req.lastName;
-      userData.email = req.email;
+      userData.firstName = req.user.firstName;
+      userData.firstName = req.user.firstName;
+      userData.lastName = req.user.lastName;
+      userData.email = req.user.email;
       userExist = await this.userRepo.createOne(userData);
     }
     return this.fillResponse(userExist);

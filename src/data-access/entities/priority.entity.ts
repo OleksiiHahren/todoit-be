@@ -1,5 +1,6 @@
-import { BaseEntity, Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import { BaseEntity, Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, Unique } from 'typeorm';
 import { TaskEntity } from '@root/data-access/entities/task.entity';
+import { UserEntity } from '@root/data-access/entities/user.entity';
 
 @Entity()
 @Unique(['name', 'id'])
@@ -20,4 +21,7 @@ export class MarkEntity extends BaseEntity {
   @ManyToMany(() => TaskEntity, (tasks) => tasks.marks)
   tasks: TaskEntity[];
 
+  @ManyToOne(() => UserEntity, (user) => user.id,
+    { nullable: false })
+  creator: UserEntity;
 }
