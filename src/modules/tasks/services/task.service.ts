@@ -5,13 +5,14 @@ import { TaskEntity } from '@root/data-access/entities/task.entity';
 import { StatusesEnum } from '@root/data-access/models-enums/statuses.enum';
 import { TaskInputDto } from '@root/modules/tasks/dto/task.input.dto';
 import { ProjectEntity } from '@root/data-access/entities/project.entity';
-import { ProjectDto } from '@root/modules/projects/types/project.type';
 import { MarkEntity } from '@root/data-access/entities/priority.entity';
 import { MarkDto } from '@root/modules/marks/dto/marks.dto';
 import { Inject, UseGuards, UseInterceptors } from '@nestjs/common';
 import * as moment from 'moment';
 import { PaginationDto } from '@root/modules/common/dto/pagination.dto';
 import { GqlAuthGuard } from '@root/guards/jwt.guard';
+import { CurrentUser } from '@root/decorators/get-user.decorator';
+import { ProjectDto } from '@root/modules/projects/dto/project.dto';
 
 @Resolver(() => TaskDto)
 export class TaskService {
@@ -43,7 +44,6 @@ export class TaskService {
       filter: {
         status: { neq: this.statusesEnum.done },
         deadline: { between: { lower: yesterday, upper: tomorrow } }
-
       },
       paging: { offset, limit }
     });
@@ -67,7 +67,7 @@ export class TaskService {
 
   @Query(() => [TaskDto])
   @UseGuards(GqlAuthGuard)
-  async taskIncomes(@Args('paging') paging: PaginationDto) {
+  async taskIncomes(@Args('paging') paging: PaginationDto, @CurrentUser() user): Promise<TaskDto[]> {
     const { offset, limit } = paging;
     const todayStart = this.momentWrapper.startOf('d').toDate();
     const todayEnd = this.momentWrapper.endOf('d').toDate();
@@ -80,7 +80,10 @@ export class TaskService {
         {
           status: { eq: this.statusesEnum.relevant },
           deadline: { between: { lower: todayStart, upper: todayEnd } }
-        }
+        },
+      ],
+      and: [
+        { creator: { id: { eq: user.id } } }
       ]
     };
 
@@ -89,9 +92,18 @@ export class TaskService {
 
   @Mutation(() => TaskDto)
   @UseGuards(GqlAuthGuard)
-  async createTaskWithAllDetails(@Args('data') data: TaskInputDto) {
-    const { projectId, markIds, reminderId } = data;
-    const task = await this.serviceTask.createOne(data);
+  async createTaskWithAllDetails(@Args('data') data: TaskInputDto, @CurrentUser() user) {
+    const { projectId, markIds, reminderId, creatorId } = data;
+    data.creatorId = user.id;
+    data.creator = user;
+    let task;
+    try {
+      task = await this.serviceTask.createOne(data);
+
+    } catch (e) {
+      console.error(e);
+    }
+
     if (projectId) {
       await this.fillProjectData(task.id, projectId);
     }

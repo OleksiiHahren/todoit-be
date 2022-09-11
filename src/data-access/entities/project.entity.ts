@@ -1,4 +1,4 @@
-import { Unique, BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Unique, BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { TaskEntity } from '@root/data-access/entities/task.entity';
 import { UserEntity } from '@root/data-access/entities/user.entity';
 
@@ -21,8 +21,9 @@ export class ProjectEntity extends BaseEntity {
   @OneToMany(() => TaskEntity, (task) => task.project)
   tasks: TaskEntity[];
 
-  @ManyToOne(() => UserEntity, (user) => user.id,
+  @ManyToOne(() => UserEntity, (user) => user.projects,
     { nullable: false })
+  @JoinColumn()
   creator: UserEntity;
 
 }

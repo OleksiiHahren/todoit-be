@@ -21,7 +21,7 @@ export class MarkEntity extends BaseEntity {
   @ManyToMany(() => TaskEntity, (tasks) => tasks.marks)
   tasks: TaskEntity[];
 
-  @ManyToOne(() => UserEntity, (user) => user.id,
+  @ManyToOne(() => UserEntity, (user) => user.marks,
     { nullable: false })
   creator: UserEntity;
 }

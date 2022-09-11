@@ -4,8 +4,8 @@ import { ProjectService } from '@root/modules/projects/services/project.service'
 import { NestjsQueryTypeOrmModule } from '@nestjs-query/query-typeorm';
 import { ProjectEntity } from '@root/data-access/entities/project.entity';
 import { GqlAuthGuard } from '@root/guards/jwt.guard';
-import { ProjectDto } from '@root/modules/projects/types/project.type';
 import { CommonModule } from '@root/modules/common/common.module';
+import { ProjectDto } from '@root/modules/projects/dto/project.dto';
 
 @Module({
   providers: [ProjectService],
@@ -13,20 +13,22 @@ import { CommonModule } from '@root/modules/common/common.module';
     NestjsQueryGraphQLModule.forFeature({
       imports: [
         CommonModule,
-        NestjsQueryTypeOrmModule.forFeature([ProjectEntity]),
+        NestjsQueryTypeOrmModule.forFeature([ProjectEntity])
       ],
       assemblers: [],
       resolvers: [
         {
+          read: { disabled: true },
           create: { many: { disabled: true } },
           delete: { many: { disabled: true } },
           update: { many: { disabled: true } },
           DTOClass: ProjectDto,
           EntityClass: ProjectEntity,
-          guards: [GqlAuthGuard],
-        },
-      ],
-    }),
-  ],
+          guards: [GqlAuthGuard]
+        }
+      ]
+    })
+  ]
 })
-export class ProjectsModule {}
+export class ProjectsModule {
+}

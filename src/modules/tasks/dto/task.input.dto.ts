@@ -1,7 +1,13 @@
-import { FilterableField, Relation, UpdateOneInputType } from '@nestjs-query/query-graphql';
-import { Field, ID, InputType } from '@nestjs/graphql';
+import {
+  BeforeCreateOne, BeforeUpdateOne,
+  CreateOneInputType,
+  FilterableField,
+  UpdateOneInputType
+} from '@nestjs-query/query-graphql';
+import { ID, InputType } from '@nestjs/graphql';
 import { TaskDto } from '@root/modules/tasks/dto/task-list-item.type';
 import { IsOptional } from 'class-validator';
+import { UserEntity } from '@root/data-access/entities/user.entity';
 
 @InputType('taskInput')
 export class TaskInputDto {
@@ -16,7 +22,7 @@ export class TaskInputDto {
   @FilterableField()
   deadline: Date;
 
-  @FilterableField(() => ID,{ nullable: true })
+  @FilterableField(() => ID, { nullable: true })
   @IsOptional()
   markIds: string[];
 
@@ -27,6 +33,12 @@ export class TaskInputDto {
   @FilterableField(() => ID, { nullable: true })
   @IsOptional()
   reminderId: string;
+
+  @FilterableField(() => ID, { nullable: true })
+  @IsOptional()
+  creatorId: string;
+
+  creator?: UserEntity;
 }
 
 @InputType()

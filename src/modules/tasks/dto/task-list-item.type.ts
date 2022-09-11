@@ -1,15 +1,33 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { FilterableField, Relation } from '@nestjs-query/query-graphql';
+import {
+  Authorize,
+  BeforeCreateOne,
+  BeforeUpdateOne,
+  CreateOneInputType,
+  FilterableField,
+  Relation, UpdateOneInputType
+} from '@nestjs-query/query-graphql';
 import { StatusesEnum } from '@root/data-access/models-enums/statuses.enum';
-import { ProjectDto } from '@root/modules/projects/types/project.type';
-import { IsEnum } from 'class-validator';
+import { IsEnum, IsNumber } from 'class-validator';
 import { MarkDto } from '@root/modules/marks/dto/marks.dto';
 import { ReminderDto } from '@root/modules/reminder/dto/reminder.dto';
+import { UserDto } from '@root/modules/common/user/dto/user.dto';
+import { UserEntity } from '@root/data-access/entities/user.entity';
+import { ProjectDto } from '@root/modules/projects/dto/project.dto';
 
 @ObjectType('task')
-@Relation('project', () => ProjectDto, { disableRemove: true, nullable: true })
-@Relation('priority', () => MarkDto, { disableRemove: true, nullable: true })
-@Relation('reminder', () => ReminderDto, { disableRemove: true, nullable: true })
+@BeforeCreateOne((input: CreateOneInputType<TaskDto>, context) => {
+  input.input.creator = context.req.user;
+  return input;
+})
+@BeforeUpdateOne((input: UpdateOneInputType<TaskDto>, context) => {
+  input.update.creator = context.user;
+  return input;
+})
+@Relation('creator', () => UserDto, { disableRemove: false, nullable: false })
+@Relation('project', () => ProjectDto, { disableRemove: false, nullable: true })
+@Relation('priority', () => MarkDto, { disableRemove: false, nullable: true })
+@Relation('reminder', () => ReminderDto, { disableRemove: false, nullable: true })
 export class TaskDto {
   @Field(type => ID)
   id: string;
@@ -26,7 +44,7 @@ export class TaskDto {
   @FilterableField(() => ID, { nullable: true })
   priorityId!: string;
 
-  @FilterableField(() => ID,{ nullable: true })
+  @FilterableField(() => ID, { nullable: true })
   projectId!: string;
 
   @FilterableField(() => ID, { nullable: true })
@@ -36,4 +54,8 @@ export class TaskDto {
   @IsEnum(StatusesEnum)
   status: StatusesEnum;
 
+  @FilterableField(() => ID, { nullable: true })
+  creatorId: string;
+
+  creator?: UserEntity;
 }
