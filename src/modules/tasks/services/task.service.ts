@@ -7,7 +7,7 @@ import { TaskInputDto } from '@root/modules/tasks/dto/task.input.dto';
 import { ProjectEntity } from '@root/data-access/entities/project.entity';
 import { MarkEntity } from '@root/data-access/entities/priority.entity';
 import { MarkDto } from '@root/modules/marks/dto/marks.dto';
-import { Inject, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Inject, UseGuards } from '@nestjs/common';
 import * as moment from 'moment';
 import { PaginationDto } from '@root/modules/common/dto/pagination.dto';
 import { GqlAuthGuard } from '@root/guards/jwt.guard';
@@ -69,21 +69,18 @@ export class TaskService {
   @UseGuards(GqlAuthGuard)
   async taskIncomes(@Args('paging') paging: PaginationDto, @CurrentUser() user): Promise<TaskDto[]> {
     const { offset, limit } = paging;
-    const todayStart = this.momentWrapper.startOf('d').toDate();
-    const todayEnd = this.momentWrapper.endOf('d').toDate();
+    const yesterdayEnd = this.momentWrapper
+      .subtract(1, 'd')
+      .endOf('d')
+      .toDate();
+    const todayEnd = this.momentWrapper.add(1, 'd').endOf('d').toDate();
     const filter: Filter<TaskDto> = {
-      or: [
-        {
-          status: { eq: this.statusesEnum.relevant },
-          deadline: { is: null }
-        },
-        {
-          status: { eq: this.statusesEnum.relevant },
-          deadline: { between: { lower: todayStart, upper: todayEnd } }
-        },
-      ],
+      creator: { id: { eq: user.id } },
+      status: { eq: this.statusesEnum.relevant },
       and: [
-        { creator: { id: { eq: user.id } } }
+        {
+          deadline: { lte: todayEnd }
+        }
       ]
     };
 

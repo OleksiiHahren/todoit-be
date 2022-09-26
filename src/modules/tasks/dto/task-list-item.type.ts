@@ -50,7 +50,7 @@ export class TaskDto {
   @FilterableField(() => ID, { nullable: true })
   reminderId!: string;
 
-  @FilterableField()
+  @FilterableField({ nullable: true, defaultValue: StatusesEnum.relevant })
   @IsEnum(StatusesEnum)
   status: StatusesEnum;
 
