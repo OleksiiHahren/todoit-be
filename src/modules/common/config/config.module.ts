@@ -2,12 +2,18 @@ import { Module } from '@nestjs/common';
 import { ConfigService } from '@root/modules/common/config/config.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import typeOrmConfig from './typeorm.config';
+import mailgunConfig from './mailgun.config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver } from '@nestjs/apollo';
 import { GraphQLError, GraphQLFormattedError } from 'graphql/error';
+import { MailgunModule } from 'nestjs-mailgun';
+import { ScheduleModule } from '@nestjs/schedule';
+
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
+    MailgunModule.forRoot(mailgunConfig),
     TypeOrmModule.forRoot(typeOrmConfig),
     GraphQLModule.forRoot({
       autoSchemaFile: true,

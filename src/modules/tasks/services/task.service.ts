@@ -35,32 +35,41 @@ export class TaskService {
 
   @Query(() => [TaskDto])
   @UseGuards(GqlAuthGuard)
-  async tasksForToday(@Args('paging') paging: PaginationDto) {
+  async tasksForToday(@Args('paging') paging: PaginationDto, @CurrentUser() user) {
     const { offset, limit } = paging;
-    const tomorrow = this.momentWrapper.add(1, 'd').toDate();
-    const yesterday = this.momentWrapper.subtract(1, 'd').toDate();
-
+    const todayStart = this.momentWrapper.subtract(2, 'd').endOf('d').toDate();
+    const todayEnd = this.momentWrapper.add(2, 'd').startOf('d').toDate();
+    const filter: Filter<TaskDto> = {
+      creator: { id: { eq: user.id } },
+      status: { eq: this.statusesEnum.relevant },
+      and: [
+        {
+          deadline: { between: { lower: todayStart, upper: todayEnd } }
+        }
+      ]
+    };
     return await this.serviceTask.query({
-      filter: {
-        status: { neq: this.statusesEnum.done },
-        deadline: { between: { lower: yesterday, upper: tomorrow } }
-      },
+      filter,
       paging: { offset, limit }
     });
   }
 
   @Query(() => [TaskDto])
   @UseGuards(GqlAuthGuard)
-  async tasksForTomorrow(@Args('paging') paging: PaginationDto) {
+  async tasksForFuture(@Args('paging') paging: PaginationDto, @CurrentUser() user) {
     const { offset, limit } = paging;
-    const dayAfterTomorrow = this.momentWrapper.add(1, 'd').startOf('d').toDate();
-    const today = this.momentWrapper.add(1, 'd').startOf('d').toDate();
-
+    const todayEnd = this.momentWrapper.endOf('d').toDate();
+    const filter: Filter<TaskDto> = {
+      creator: { id: { eq: user.id } },
+      status: { eq: this.statusesEnum.relevant },
+      and: [
+        {
+          deadline: { gt: todayEnd }
+        }
+      ]
+    };
     return await this.serviceTask.query({
-      filter: {
-        status: { neq: this.statusesEnum.done },
-        deadline: { between: { lower: dayAfterTomorrow, upper: today } }
-      },
+      filter,
       paging: { offset, limit }
     });
   }
