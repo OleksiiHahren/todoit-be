@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { MailgunService } from 'nestjs-mailgun';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ReminderEntity } from '@root/data-access/entities/reminder.entity';
 import { ReminderService } from '@root/modules/reminder/services/reminder.service';
+import { EmailReminderRepository } from '@root/modules/email-sending/repository/email-reminder-repository';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ReminderEntity])
+    TypeOrmModule.forFeature([EmailReminderRepository])
   ],
   providers: [MailgunService, ReminderService]
 })
