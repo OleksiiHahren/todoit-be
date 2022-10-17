@@ -1,10 +1,11 @@
-import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { ID, ObjectType } from '@nestjs/graphql';
 import {
   BeforeCreateOne,
   BeforeUpdateOne,
   CreateOneInputType,
   FilterableField,
-  Relation, UpdateOneInputType
+  Relation,
+  UpdateOneInputType,
 } from '@nestjs-query/query-graphql';
 import { UserDto } from '@root/modules/common/user/dto/user.dto';
 import { UserEntity } from '@root/data-access/entities/user.entity';
@@ -18,9 +19,10 @@ import { UserEntity } from '@root/data-access/entities/user.entity';
   input.update.creator = context.user;
   return input;
 })
+
 @Relation('creator', () => UserDto, { disableRemove: false, nullable: false })
 export class ProjectDto {
-  @FilterableField(type => ID)
+  @FilterableField(() => ID)
   id: string;
 
   @FilterableField()

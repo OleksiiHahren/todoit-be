@@ -1,30 +1,39 @@
-import { Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Filter, InjectQueryService, QueryService } from '@nestjs-query/core';
 import { ProjectEntity } from '@root/data-access/entities/project.entity';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from '@root/guards/jwt.guard';
 import { CurrentUser } from '@root/decorators/get-user.decorator';
 import { ProjectDto } from '@root/modules/projects/dto/project.dto';
+import { PaginationDto } from '@root/modules/common/dto/pagination.dto';
 
 
 @Resolver(() => ProjectDto)
 export class ProjectService {
   constructor(
-    @InjectQueryService(ProjectEntity) private projectService: QueryService<ProjectDto>
+    @InjectQueryService(ProjectEntity)
+    private projectService: QueryService<ProjectDto>,
   ) {
   }
 
   @Query(() => [ProjectDto])
   @UseGuards(GqlAuthGuard)
-  async getOwnProjects(@CurrentUser() user): Promise<ProjectDto[]> {
+  async getOwnProjects(
+    @CurrentUser() user,
+    @Args('paging') paging: PaginationDto,
+  ): Promise<ProjectDto[]> {
     return await this.projectService.query({
+      paging,
       filter: { creator: { id: { eq: user.id } } }
     });
   }
 
   @Query(() => [ProjectDto])
   @UseGuards(GqlAuthGuard)
-  async getFavoriteProjects(@CurrentUser() user): Promise<ProjectDto[]> {
+  async getFavoriteProjects(
+    @CurrentUser() user,
+    @Args('paging') paging: PaginationDto,
+  ): Promise<ProjectDto[]> {
     const filter: Filter<ProjectDto> = {
       and: [
         {
@@ -32,11 +41,11 @@ export class ProjectService {
         },
         {
           favorite: { is: true }
-        }
-      ]
+        },
+      ],
     };
 
-    return await this.projectService.query({ filter });
+    return await this.projectService.query({ paging, filter });
   }
 
   @Mutation(() => ProjectDto)
