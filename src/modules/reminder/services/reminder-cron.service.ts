@@ -11,5 +11,6 @@ export class ReminderCronService {
 
   @Cron('0 0 * * 0')
   remindAboutSkippedTasks() {
+
   }
 }

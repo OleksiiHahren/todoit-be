@@ -6,14 +6,15 @@ import { NestjsQueryTypeOrmModule } from '@nestjs-query/query-typeorm';
 import { GqlAuthGuard } from '@root/guards/jwt.guard';
 import { ReminderEntity } from '@root/data-access/entities/reminder.entity';
 import { ReminderDto } from '@root/modules/reminder/dto/reminder.dto';
+import { ReminderCronService } from '@root/modules/reminder/services/reminder-cron.service';
 
 @Module({
-  providers: [ReminderService],
+  providers: [ReminderService, ReminderCronService],
   imports: [
     NestjsQueryGraphQLModule.forFeature({
       imports: [
         CommonModule,
-        NestjsQueryTypeOrmModule.forFeature([ReminderEntity]),
+        NestjsQueryTypeOrmModule.forFeature([ReminderEntity])
       ],
       assemblers: [],
       resolvers: [
@@ -23,10 +24,11 @@ import { ReminderDto } from '@root/modules/reminder/dto/reminder.dto';
           update: { many: { disabled: true } },
           DTOClass: ReminderDto,
           EntityClass: ReminderEntity,
-          guards: [GqlAuthGuard],
-        },
-      ],
-    }),
+          guards: [GqlAuthGuard]
+        }
+      ]
+    })
   ]
 })
-export class ReminderModule {}
+export class ReminderModule {
+}

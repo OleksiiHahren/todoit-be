@@ -18,6 +18,9 @@ export class TaskEntity extends BaseEntity {
   @Column({ nullable: true })
   description: string;
 
+  @Column({ nullable: true })
+  order: number;
+
   @ManyToOne(() => ProjectEntity, (project) => project.tasks,
     { nullable: true })
   project: ProjectEntity;

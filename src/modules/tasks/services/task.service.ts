@@ -26,10 +26,12 @@ export class TaskService {
   ) {
   }
 
-  async markAllAsCompleted(): Promise<number> {
-    const entities = await this.serviceTask.query({ filter: { deadline: { is: null } } });
-
-    return entities.length;
+  @Query(() => TaskDto)
+  @UseGuards(GqlAuthGuard)
+  async markAsCompleted(@Args('taskId') taskId: string): Promise<TaskDto> {
+    const task = await this.serviceTask.findById(taskId);
+    task.status = StatusesEnum.done;
+    return await this.serviceTask.updateOne(task.id, task);
   }
 
 
@@ -96,10 +98,35 @@ export class TaskService {
     return await this.serviceTask.query({ filter, paging: { offset, limit } });
   }
 
+  @Mutation(() => [TaskDto])
+  @UseGuards(GqlAuthGuard)
+  async changePriority(@CurrentUser() user): Promise<TaskDto[]> {
+    const tasksForUpdate = [];
+    const tasksIds = [1, 2, 4, 5];
+    for (let i = 0; i < tasksIds.length; i++) {
+      tasksForUpdate.push(
+        this.serviceTask.updateOne(
+          tasksIds[i],
+          { order: i + 1 },
+          { filter: { creator: { id: { eq: user.id } } } }
+        )
+      );
+    }
+    const tasks = await Promise.all([
+      this.serviceTask.updateOne(
+        1,
+        { order: 1 },
+        { filter: { creator: { id: { eq: user.id } } } }
+      )
+    ]);
+    return tasks;
+  }
+
+
   @Mutation(() => TaskDto)
   @UseGuards(GqlAuthGuard)
   async createTaskWithAllDetails(@Args('data') data: TaskInputDto, @CurrentUser() user) {
-    const { projectId, markIds, reminderId, creatorId } = data;
+    const { projectId, markIds, reminderId } = data;
     data.creatorId = user.id;
     data.creator = user;
     let task;

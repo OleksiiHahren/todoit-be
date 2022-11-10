@@ -1,16 +1,14 @@
 import { Module } from '@nestjs/common';
-import { MailgunService } from 'nestjs-mailgun';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { MailgunModule } from 'nestjs-mailgun';
 import { ReminderService } from '@root/modules/reminder/services/reminder.service';
-import { EmailReminderRepository } from '@root/modules/email-sending/repository/email-reminder-repository';
 import { SenderService } from '@root/modules/email-sending/services/sender.service';
+import mailgunConfig from '@root/modules/common/config/mailgun.config';
 
 @Module({
   imports: [
-
-    TypeOrmModule.forFeature([EmailReminderRepository])
+    MailgunModule.forRoot(mailgunConfig),
   ],
-  providers: [MailgunService, ReminderService, SenderService]
+  providers: [ReminderService, SenderService]
 })
 export class EmailSendingModule {
 }

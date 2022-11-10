@@ -9,14 +9,15 @@ import {
 } from '@nestjs-query/query-graphql';
 import { UserDto } from '@root/modules/common/user/dto/user.dto';
 import { UserEntity } from '@root/data-access/entities/user.entity';
+import { ContextType } from '@nestjs/common';
 
 @ObjectType('Project')
 @BeforeCreateOne((input: CreateOneInputType<ProjectDto>, context) => {
-  input.input.creator = context.user;
+  input.input.creator = context.req.user;
   return input;
 })
 @BeforeUpdateOne((input: UpdateOneInputType<ProjectDto>, context) => {
-  input.update.creator = context.user;
+  input.update.creator = context.req.user;
   return input;
 })
 

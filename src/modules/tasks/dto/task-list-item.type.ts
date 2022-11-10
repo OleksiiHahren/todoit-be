@@ -1,6 +1,5 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import {
-  Authorize,
   BeforeCreateOne,
   BeforeUpdateOne,
   CreateOneInputType,
@@ -8,7 +7,7 @@ import {
   Relation, UpdateOneInputType
 } from '@nestjs-query/query-graphql';
 import { StatusesEnum } from '@root/data-access/models-enums/statuses.enum';
-import { IsEnum, IsNumber } from 'class-validator';
+import { IsEnum } from 'class-validator';
 import { MarkDto } from '@root/modules/marks/dto/marks.dto';
 import { ReminderDto } from '@root/modules/reminder/dto/reminder.dto';
 import { UserDto } from '@root/modules/common/user/dto/user.dto';
@@ -49,6 +48,9 @@ export class TaskDto {
 
   @FilterableField(() => ID, { nullable: true })
   reminderId!: string;
+
+  @FilterableField({ nullable: false })
+  order: number;
 
   @FilterableField({ nullable: true, defaultValue: StatusesEnum.relevant })
   @IsEnum(StatusesEnum)

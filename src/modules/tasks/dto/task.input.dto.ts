@@ -1,6 +1,4 @@
 import {
-  BeforeCreateOne, BeforeUpdateOne,
-  CreateOneInputType,
   FilterableField,
   UpdateOneInputType
 } from '@nestjs-query/query-graphql';

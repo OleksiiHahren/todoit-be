@@ -1,9 +1,10 @@
 import { ID, ObjectType } from '@nestjs/graphql';
-import { FilterableField } from '@nestjs-query/query-graphql';
-import { IsDate, IsEnum } from 'class-validator';
-import { StatusesEnum } from '@root/data-access/models-enums/statuses.enum';
+import { FilterableField, Relation } from '@nestjs-query/query-graphql';
+import { IsDate } from 'class-validator';
+import { TaskDto } from '@root/modules/tasks/dto/task-list-item.type';
 
 @ObjectType('reminder')
+@Relation('task', () => TaskDto, { disableRemove: false, nullable: false })
 export class ReminderDto {
   @FilterableField(type => ID)
   id: string;
@@ -16,6 +17,6 @@ export class ReminderDto {
   timeForRemind: Date;
 
   @FilterableField()
-  @IsEnum(StatusesEnum)
-  status: StatusesEnum;
+  task: TaskDto;
+
 }

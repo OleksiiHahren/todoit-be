@@ -12,7 +12,7 @@ import { PaginationDto } from '@root/modules/common/dto/pagination.dto';
 export class ProjectService {
   constructor(
     @InjectQueryService(ProjectEntity)
-    private projectService: QueryService<ProjectDto>,
+    private projectService: QueryService<ProjectDto>
   ) {
   }
 
@@ -20,11 +20,13 @@ export class ProjectService {
   @UseGuards(GqlAuthGuard)
   async getOwnProjects(
     @CurrentUser() user,
-    @Args('paging') paging: PaginationDto,
+    @Args('paging') paging: PaginationDto
   ): Promise<ProjectDto[]> {
     return await this.projectService.query({
       paging,
-      filter: { creator: { id: { eq: user.id } } }
+      filter: {
+        creator: { id: { eq: user.id } }, favorite: { is: false }
+      },
     });
   }
 
@@ -32,7 +34,7 @@ export class ProjectService {
   @UseGuards(GqlAuthGuard)
   async getFavoriteProjects(
     @CurrentUser() user,
-    @Args('paging') paging: PaginationDto,
+    @Args('paging') paging: PaginationDto
   ): Promise<ProjectDto[]> {
     const filter: Filter<ProjectDto> = {
       and: [
@@ -41,8 +43,8 @@ export class ProjectService {
         },
         {
           favorite: { is: true }
-        },
-      ],
+        }
+      ]
     };
 
     return await this.projectService.query({ paging, filter });
@@ -60,7 +62,7 @@ export class ProjectService {
   @UseGuards(GqlAuthGuard)
   async removeFromFavoriteProjects(
     id: string,
-    @CurrentUser() user,
+    @CurrentUser() user
   ): Promise<ProjectDto> {
     const targetProject = await this.projectService.getById(id, { filter: { creator: { id: { eq: user.id } } } });
     targetProject.favorite = false;
