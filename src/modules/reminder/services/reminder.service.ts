@@ -1,47 +1,55 @@
 import { Inject, Logger } from '@nestjs/common';
-import { Resolver } from '@nestjs/graphql';
-import { ReminderDto } from '@root/modules/reminder/dto/reminder.dto';
-import { InjectQueryService, QueryService } from '@nestjs-query/core';
-import { ReminderEntity } from '@root/data-access/entities/reminder.entity';
+import { Query, Resolver } from '@nestjs/graphql';
+import { QueryService } from '@nestjs-query/core';
 import * as moment from 'moment/moment';
-import { Between } from 'typeorm';
 import { StatusesEnum } from '@root/data-access/models-enums/statuses.enum';
+import { TaskDto } from '@root/modules/tasks/dto/task-list-item.type';
+import { TaskEntity } from '@root/data-access/entities/task.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
-@Resolver(() => ReminderDto)
+
+@Resolver(() => TaskDto)
 export class ReminderService {
   private readonly logger = new Logger(ReminderService.name);
 
   constructor(
-    @InjectQueryService(ReminderEntity) readonly reminderService: QueryService<ReminderDto>,
-    @Inject('MomentWrapper') private momentWrapper: moment.Moment
+    @Inject('MomentWrapper') private momentWrapper: moment.Moment,
+    @InjectRepository(TaskEntity) readonly taskService: QueryService<TaskEntity>
   ) {
   }
 
+  @Query(() => [TaskDto])
   getAllUpcomingTaskForRemind() {
-    const startDay = this.momentWrapper.startOf('d').toDate();
-    const endDay = this.momentWrapper.endOf('d').toDate();
+    try {
+      const startDay = this.momentWrapper.startOf('d').toDate();
+      const endDay = this.momentWrapper.endOf('d').toDate();
 
-    this.reminderService.query({
-      filter: {
-        timeForRemind: { between: { lower: startDay, upper: endDay } },
-        task: { status: { eq: StatusesEnum.relevant } }
-      }
-    });
+      return this.taskService.query({
+        filter: {
+          remind: { between: { lower: startDay, upper: endDay } },
+          status: { neq: StatusesEnum.done }
+        }
+      });
+    } catch (e) {
+      this.logger.error(e);
+    }
+
   }
 
+  @Query(() => [TaskDto])
   getAllExpiredTaskForRemind() {
-    const startDay = this.momentWrapper.startOf('d').toDate();
+    try {
+      const startDay = this.momentWrapper.startOf('d').toDate();
 
-    this.reminderService.query({
-      filter: {
-        timeForRemind: { lt: startDay },
-        task: { status: { eq: StatusesEnum.relevant } },
-        and: [
-          {
-            task: { status: { eq: StatusesEnum.delayed } }
-          }
-        ]
-      }
-    });
+      return this.taskService.query({
+        filter: {
+          remind: { lt: startDay },
+          status: { neq: StatusesEnum.done }
+        }
+      });
+    } catch (e) {
+      this.logger.error(e);
+    }
   }
+
 }

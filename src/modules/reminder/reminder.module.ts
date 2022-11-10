@@ -1,34 +1,24 @@
-import { Module } from '@nestjs/common';
+import { Module, Scope } from '@nestjs/common';
 import { ReminderService } from '@root/modules/reminder/services/reminder.service';
-import { NestjsQueryGraphQLModule } from '@nestjs-query/query-graphql';
-import { CommonModule } from '@root/modules/common/common.module';
-import { NestjsQueryTypeOrmModule } from '@nestjs-query/query-typeorm';
-import { GqlAuthGuard } from '@root/guards/jwt.guard';
-import { ReminderEntity } from '@root/data-access/entities/reminder.entity';
-import { ReminderDto } from '@root/modules/reminder/dto/reminder.dto';
 import { ReminderCronService } from '@root/modules/reminder/services/reminder-cron.service';
+import * as moment from 'moment/moment';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { TaskEntity } from '@root/data-access/entities/task.entity';
 
 @Module({
-  providers: [ReminderService, ReminderCronService],
+  providers: [
+    ReminderService,
+    ReminderCronService,
+    {
+      provide: 'MomentWrapper',
+      useFactory: async () => moment(),
+      scope: Scope.REQUEST
+    }
+  ],
   imports: [
-    NestjsQueryGraphQLModule.forFeature({
-      imports: [
-        CommonModule,
-        NestjsQueryTypeOrmModule.forFeature([ReminderEntity])
-      ],
-      assemblers: [],
-      resolvers: [
-        {
-          create: { many: { disabled: true } },
-          delete: { many: { disabled: true } },
-          update: { many: { disabled: true } },
-          DTOClass: ReminderDto,
-          EntityClass: ReminderEntity,
-          guards: [GqlAuthGuard]
-        }
-      ]
-    })
+    TypeOrmModule.forFeature([TaskEntity])
   ]
 })
+
 export class ReminderModule {
 }

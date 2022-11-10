@@ -32,9 +32,12 @@ export class TaskInputDto {
   @IsOptional()
   projectId: string;
 
-  @FilterableField(() => ID, { nullable: true })
+  @FilterableField()
   @IsOptional()
-  reminderId: string;
+  reminder: Date;
+
+  @FilterableField({ defaultValue: false })
+  repeatReminder: boolean;
 
   @FilterableField(() => ID, { nullable: true })
   @IsOptional()

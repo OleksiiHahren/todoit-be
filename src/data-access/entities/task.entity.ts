@@ -1,8 +1,7 @@
-import { BaseEntity, Column, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
 import { ProjectEntity } from '@root/data-access/entities/project.entity';
 import { MarkEntity } from '@root/data-access/entities/priority.entity';
 import { StatusesEnum } from '@root/data-access/models-enums/statuses.enum';
-import { ReminderEntity } from '@root/data-access/entities/reminder.entity';
 import { UserEntity } from '@root/data-access/entities/user.entity';
 
 @Entity()
@@ -32,9 +31,11 @@ export class TaskEntity extends BaseEntity {
     { nullable: true })
   marks: MarkEntity;
 
-  @OneToOne(() => ReminderEntity, (reminder) => reminder.task,
-    { nullable: true })
-  remind: ReminderEntity;
+  @Column({ nullable: true })
+  remind: Date;
+
+  @Column({ default: false })
+  repeatRemind: boolean;
 
   @Column({ default: StatusesEnum.relevant })
   status: StatusesEnum;

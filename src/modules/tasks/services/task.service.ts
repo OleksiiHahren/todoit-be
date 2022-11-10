@@ -7,7 +7,7 @@ import { TaskInputDto } from '@root/modules/tasks/dto/task.input.dto';
 import { ProjectEntity } from '@root/data-access/entities/project.entity';
 import { MarkEntity } from '@root/data-access/entities/priority.entity';
 import { MarkDto } from '@root/modules/marks/dto/marks.dto';
-import { Inject, UseGuards } from '@nestjs/common';
+import { Inject, Logger, UseGuards } from '@nestjs/common';
 import * as moment from 'moment';
 import { PaginationDto } from '@root/modules/common/dto/pagination.dto';
 import { GqlAuthGuard } from '@root/guards/jwt.guard';
@@ -17,7 +17,7 @@ import { ProjectDto } from '@root/modules/projects/dto/project.dto';
 @Resolver(() => TaskDto)
 export class TaskService {
   readonly statusesEnum = StatusesEnum;
-
+  readonly logger = new Logger(this.constructor.name);
   constructor(
     @InjectQueryService(ProjectEntity) readonly projectService: QueryService<ProjectDto>,
     @InjectQueryService(MarkEntity) readonly markService: QueryService<MarkDto>,
@@ -38,22 +38,27 @@ export class TaskService {
   @Query(() => [TaskDto])
   @UseGuards(GqlAuthGuard)
   async tasksForToday(@Args('paging') paging: PaginationDto, @CurrentUser() user) {
-    const { offset, limit } = paging;
-    const todayStart = this.momentWrapper.subtract(2, 'd').endOf('d').toDate();
-    const todayEnd = this.momentWrapper.add(2, 'd').startOf('d').toDate();
-    const filter: Filter<TaskDto> = {
-      creator: { id: { eq: user.id } },
-      status: { eq: this.statusesEnum.relevant },
-      and: [
-        {
-          deadline: { between: { lower: todayStart, upper: todayEnd } }
-        }
-      ]
-    };
-    return await this.serviceTask.query({
-      filter,
-      paging: { offset, limit }
-    });
+    try {
+      const { offset, limit } = paging;
+      const todayStart = this.momentWrapper.subtract(2, 'd').endOf('d').toDate();
+      const todayEnd = this.momentWrapper.add(2, 'd').startOf('d').toDate();
+      const filter: Filter<TaskDto> = {
+        creator: { id: { eq: user.id } },
+        status: { eq: this.statusesEnum.relevant },
+        and: [
+          {
+            deadline: { between: { lower: todayStart, upper: todayEnd } }
+          }
+        ]
+      };
+      return await this.serviceTask.query({
+        filter,
+        paging: { offset, limit }
+      });
+    } catch (e) {
+      this.logger.error(e)
+    }
+
   }
 
   @Query(() => [TaskDto])
@@ -100,33 +105,28 @@ export class TaskService {
 
   @Mutation(() => [TaskDto])
   @UseGuards(GqlAuthGuard)
-  async changePriority(@CurrentUser() user): Promise<TaskDto[]> {
+  async changePriority(
+    ids: string[],
+    @CurrentUser() user,
+  ): Promise<TaskDto[]> {
     const tasksForUpdate = [];
-    const tasksIds = [1, 2, 4, 5];
-    for (let i = 0; i < tasksIds.length; i++) {
+    for (let i = 0; i < ids.length; i++) {
       tasksForUpdate.push(
         this.serviceTask.updateOne(
-          tasksIds[i],
+          ids[i],
           { order: i + 1 },
           { filter: { creator: { id: { eq: user.id } } } }
         )
       );
     }
-    const tasks = await Promise.all([
-      this.serviceTask.updateOne(
-        1,
-        { order: 1 },
-        { filter: { creator: { id: { eq: user.id } } } }
-      )
-    ]);
+    const tasks = await Promise.all(tasksForUpdate);
     return tasks;
   }
-
 
   @Mutation(() => TaskDto)
   @UseGuards(GqlAuthGuard)
   async createTaskWithAllDetails(@Args('data') data: TaskInputDto, @CurrentUser() user) {
-    const { projectId, markIds, reminderId } = data;
+    const { projectId, markIds, reminder } = data;
     data.creatorId = user.id;
     data.creator = user;
     let task;
@@ -143,8 +143,8 @@ export class TaskService {
     if (markIds) {
       await this.fillMarksData(task.id, markIds);
     }
-    if (reminderId) {
-      await this.fillRemindersData(task.id, reminderId);
+    if (reminder) {
+      await this.fillRemindersData(task.id, reminder);
     }
     return task;
   }

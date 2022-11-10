@@ -9,7 +9,6 @@ import {
 import { StatusesEnum } from '@root/data-access/models-enums/statuses.enum';
 import { IsEnum } from 'class-validator';
 import { MarkDto } from '@root/modules/marks/dto/marks.dto';
-import { ReminderDto } from '@root/modules/reminder/dto/reminder.dto';
 import { UserDto } from '@root/modules/common/user/dto/user.dto';
 import { UserEntity } from '@root/data-access/entities/user.entity';
 import { ProjectDto } from '@root/modules/projects/dto/project.dto';
@@ -26,7 +25,6 @@ import { ProjectDto } from '@root/modules/projects/dto/project.dto';
 @Relation('creator', () => UserDto, { disableRemove: false, nullable: false })
 @Relation('project', () => ProjectDto, { disableRemove: false, nullable: true })
 @Relation('priority', () => MarkDto, { disableRemove: false, nullable: true })
-@Relation('reminder', () => ReminderDto, { disableRemove: false, nullable: true })
 export class TaskDto {
   @Field(type => ID)
   id: string;
@@ -46,8 +44,11 @@ export class TaskDto {
   @FilterableField(() => ID, { nullable: true })
   projectId!: string;
 
-  @FilterableField(() => ID, { nullable: true })
-  reminderId!: string;
+  @FilterableField({ nullable: true })
+  remind: Date;
+
+  @FilterableField()
+  repeatRemind: boolean;
 
   @FilterableField({ nullable: false })
   order: number;
