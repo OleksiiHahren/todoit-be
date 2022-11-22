@@ -7,4 +7,7 @@ export default {
   key: process.env.MAILGUN_KEY || config.get('mailgun.MAILGUN_KEY'),
   public_key:
     process.env.MAILGUN_PUBLIC_KEY || config.get('mailgun.MAILGUN_PUBLIC_KEY'),
+  host: process.env.MAILGUN_HOST || config.get('mailgun.MAILGUN_HOST'),
+  password:
+    process.env.MAILGUN_PASSWORD || config.get('mailgun.MAILGUN_PASSWORD'),
 };

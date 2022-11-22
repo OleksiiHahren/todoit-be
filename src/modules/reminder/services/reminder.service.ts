@@ -1,5 +1,5 @@
 import { Inject, Logger } from '@nestjs/common';
-import { Query, Resolver } from '@nestjs/graphql';
+import { Resolver } from '@nestjs/graphql';
 import { QueryService } from '@nestjs-query/core';
 import * as moment from 'moment/moment';
 import { StatusesEnum } from '@root/data-access/models-enums/statuses.enum';
@@ -14,42 +14,50 @@ export class ReminderService {
 
   constructor(
     @Inject('MomentWrapper') private momentWrapper: moment.Moment,
-    @InjectRepository(TaskEntity) readonly taskService: QueryService<TaskEntity>
+    @InjectRepository(TaskEntity)
+    readonly taskService: QueryService<TaskDto>
   ) {
   }
 
-  @Query(() => [TaskDto])
-  getAllUpcomingTaskForRemind() {
+  async getAllUpcomingTaskForRemind(): Promise<{ [key: string]: TaskDto[] }> {
     try {
       const startDay = this.momentWrapper.startOf('d').toDate();
       const endDay = this.momentWrapper.endOf('d').toDate();
-
-      return this.taskService.query({
+      const tasks = await this.taskService.query({
         filter: {
           remind: { between: { lower: startDay, upper: endDay } },
           status: { neq: StatusesEnum.done }
         }
       });
+      return this.groupByEmail(tasks);
     } catch (e) {
       this.logger.error(e);
     }
-
   }
 
-  @Query(() => [TaskDto])
-  getAllExpiredTaskForRemind() {
+  async getAllExpiredTaskForRemind(): Promise<{ [key: string]: TaskDto[] }> {
     try {
       const startDay = this.momentWrapper.startOf('d').toDate();
-
-      return this.taskService.query({
+      const stackOfItems = await this.taskService.query({
         filter: {
           remind: { lt: startDay },
           status: { neq: StatusesEnum.done }
         }
       });
+      return this.groupByEmail(stackOfItems);
     } catch (e) {
       this.logger.error(e);
     }
   }
 
+  private groupByEmail(tasks: TaskDto[]): { [key: string]: TaskDto[] } {
+    const resObj = {};
+    tasks.forEach(el => {
+      if (!resObj[el.creator.email]) {
+        resObj[el.creator.email] = [];
+      }
+      resObj[el.creator.email].push(el);
+    });
+    return resObj;
+  }
 }

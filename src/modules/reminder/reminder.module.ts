@@ -4,6 +4,7 @@ import { ReminderCronService } from '@root/modules/reminder/services/reminder-cr
 import * as moment from 'moment/moment';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TaskEntity } from '@root/data-access/entities/task.entity';
+import { EmailSendingModule } from '@root/modules/email-sending/email-sending.module';
 
 @Module({
   providers: [
@@ -16,6 +17,7 @@ import { TaskEntity } from '@root/data-access/entities/task.entity';
     }
   ],
   imports: [
+    EmailSendingModule,
     TypeOrmModule.forFeature([TaskEntity])
   ]
 })

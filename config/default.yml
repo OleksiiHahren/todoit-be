@@ -28,3 +28,5 @@ mailgun:
   MAILGUN_USERNAME: 'postmaster@sandboxcb8a5d7373ca4da1860bb914676d8b13.mailgun.org'
   MAILGUN_KEY: 'key-ee6a36cb997de13fdd7c99daa69a1672'
   MAILGUN_PUBLIC_KEY: 'pubkey-96eec1acd8dc70118a22e9f50e6f8445'
+  MAILGUN_HOST: 'smtp:mailgun:org'
+  MAILGUN_PASSWORD: '3d90f5002ec81e4d75de3906c35df284'
