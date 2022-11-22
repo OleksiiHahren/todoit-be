@@ -13,7 +13,6 @@ import { EmailSendingModule } from '@root/modules/email-sending/email-sending.mo
     {
       provide: 'MomentWrapper',
       useFactory: async () => moment(),
-      scope: Scope.REQUEST
     }
   ],
   imports: [

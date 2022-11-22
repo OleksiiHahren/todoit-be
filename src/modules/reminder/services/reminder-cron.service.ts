@@ -22,9 +22,9 @@ export class ReminderCronService {
         emailsForSend.push(
           this.emailSendingService.sendTaskReminder(
             email,
-            aggregatedTasks[email]
-          )
-        )
+            aggregatedTasks[email],
+          ),
+        ),
       );
       return Promise.all(emailsForSend);
     } catch (e) {
@@ -44,9 +44,9 @@ export class ReminderCronService {
         emailsForSend.push(
           this.emailSendingService.sendTaskExpiredReminder(
             email,
-            expiredTasks[email]
-          )
-        )
+            expiredTasks[email],
+          ),
+        ),
       );
       return Promise.all(emailsForSend);
     } catch (e) {
