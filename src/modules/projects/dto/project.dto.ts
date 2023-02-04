@@ -10,6 +10,8 @@ import {
 import { UserDto } from '@root/modules/common/user/dto/user.dto';
 import { UserEntity } from '@root/data-access/entities/user.entity';
 import { ContextType } from '@nestjs/common';
+import { FavoriteEntity } from '@root/data-access/entities/favorites.entity';
+import { FavoriteDto } from '@root/modules/favorites/dto/favorite.dto';
 
 @ObjectType('Project')
 @BeforeCreateOne((input: CreateOneInputType<ProjectDto>, context) => {
@@ -21,7 +23,9 @@ import { ContextType } from '@nestjs/common';
   return input;
 })
 
+@Relation('favorite', () => FavoriteDto, { disableRemove: false, nullable: true })
 @Relation('creator', () => UserDto, { disableRemove: false, nullable: false })
+
 export class ProjectDto {
   @FilterableField(() => ID)
   id: string;
@@ -32,12 +36,16 @@ export class ProjectDto {
   @FilterableField()
   color: string;
 
-  @FilterableField()
-  favorite: boolean;
+
 
   @FilterableField(() => ID, { nullable: true })
   creatorId: string;
 
+  @FilterableField(() => ID, { nullable: true })
+  favoriteId: string;
+
   creator?: UserEntity;
+
+  favorite?: FavoriteEntity;
 
 }

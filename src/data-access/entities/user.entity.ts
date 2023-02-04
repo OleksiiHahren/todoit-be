@@ -14,7 +14,8 @@ import * as bcrypt from 'bcryptjs';
 import { genSaltSync } from 'bcryptjs';
 import { TaskEntity } from '@root/data-access/entities/task.entity';
 import { ProjectEntity } from '@root/data-access/entities/project.entity';
-import { MarkEntity } from '@root/data-access/entities/priority.entity';
+import { FavoriteEntity } from '@root/data-access/entities/favorites.entity';
+import { MarkEntity } from '@root/data-access/entities/mark.entity';
 
 @Entity()
 @Unique(['email', 'id'])
@@ -65,6 +66,8 @@ export class UserEntity extends BaseEntity {
     { nullable: true, cascade: true })
   marks: MarkEntity[];
 
+  @OneToMany(() => FavoriteEntity, (favorite) => favorite.owner)
+  favorite: FavoriteEntity[];
 
   async createSalt() {
     this.salt = await bcrypt.genSalt();

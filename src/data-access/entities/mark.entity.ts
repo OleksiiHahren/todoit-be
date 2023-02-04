@@ -1,6 +1,17 @@
-import { BaseEntity, Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  Unique
+} from 'typeorm';
 import { TaskEntity } from '@root/data-access/entities/task.entity';
 import { UserEntity } from '@root/data-access/entities/user.entity';
+import { FavoriteEntity } from '@root/data-access/entities/favorites.entity';
 
 @Entity()
 @Unique(['name', 'id'])
@@ -15,8 +26,8 @@ export class MarkEntity extends BaseEntity {
   @Column()
   color: string;
 
-  @Column({ default: false })
-  favorite: boolean;
+  @OneToOne(() => FavoriteEntity, (fav) => fav.mark, { nullable: true, onDelete: 'CASCADE' })
+  favorite: FavoriteEntity;
 
   @ManyToMany(() => TaskEntity, (tasks) => tasks.marks)
   tasks: TaskEntity[];

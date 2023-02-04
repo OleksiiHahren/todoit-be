@@ -18,7 +18,7 @@ export class TaskInputDto {
   @IsOptional()
   description: string;
 
-  @FilterableField()
+  @FilterableField({ nullable: true })
   deadline: Date;
 
   @FilterableField({ defaultValue: StatusesEnum.relevant })

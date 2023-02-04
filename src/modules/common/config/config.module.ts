@@ -19,10 +19,11 @@ import { ScheduleModule } from '@nestjs/schedule';
       formatError: (error: GraphQLError) => {
         const message =
           error?.message || (error?.extensions?.message as string);
-        const status = error?.extensions.exception['status'] as string;
+        const { exception } = error?.extensions;
+
         const graphQLFormattedError: GraphQLFormattedError = {
           message,
-          extensions: { status }
+          extensions: { status: exception['status'] || '' }, // TODO figure out later why this shit not consist status field
         };
         return graphQLFormattedError;
       },

@@ -1,7 +1,7 @@
 import {
   HttpException,
   HttpStatus,
-  Injectable, InternalServerErrorException, UnauthorizedException,
+  Injectable, UnauthorizedException,
   UnprocessableEntityException
 } from '@nestjs/common';
 import { UserEntity } from '@root/data-access/entities/user.entity';

@@ -65,8 +65,7 @@ export class AuthService {
     const user = await this.proceedUserLogicWithGoogleAuth(req);
 
     res.body = user;
-    res.redirect(`${FERedirectLink}?accessToken=
-      ${user.accessToken}&refreshToken=${user.refreshToken}`);
+    res.redirect(`${FERedirectLink}?accessToken=${user.accessToken}&refreshToken=${user.refreshToken}`);
   }
 
   private async proceedUserLogicWithGoogleAuth(req): Promise<TokensType> {
@@ -94,6 +93,7 @@ export class AuthService {
         user
       );
       data.accessToken = await this.tokenService.generateAccessToken(user);
+      console.log('data.accessToken------>', data.accessToken);
       return data;
     } catch (e) {
       console.error(e.message)
