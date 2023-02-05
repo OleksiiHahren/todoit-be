@@ -3,8 +3,8 @@ import { NestjsQueryGraphQLModule } from '@nestjs-query/query-graphql';
 import { NestjsQueryTypeOrmModule } from '@nestjs-query/query-typeorm';
 import { GqlAuthGuard } from '@root/guards/jwt.guard';
 import { CommonModule } from '@root/modules/common/common.module';
-import { MarkEntity } from '@root/data-access/entities/priority.entity';
 import { MarkDto } from '@root/modules/marks/dto/marks.dto';
+import { MarkEntity } from '@root/data-access/entities/mark.entity';
 
 @Module({
   imports: [

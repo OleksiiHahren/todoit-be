@@ -4,7 +4,6 @@ import {
   Entity,
   ManyToMany,
   ManyToOne,
-  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   Unique
@@ -29,7 +28,7 @@ export class MarkEntity extends BaseEntity {
   @OneToOne(() => FavoriteEntity, (fav) => fav.mark, { nullable: true, onDelete: 'CASCADE' })
   favorite: FavoriteEntity;
 
-  @ManyToMany(() => TaskEntity, (tasks) => tasks.marks)
+  @ManyToMany(() => TaskEntity, (tasks) => tasks.marks, { onDelete: 'SET NULL' })
   tasks: TaskEntity[];
 
   @ManyToOne(() => UserEntity, (user) => user.marks,

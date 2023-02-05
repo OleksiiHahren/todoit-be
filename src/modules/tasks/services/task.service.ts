@@ -5,7 +5,6 @@ import { TaskEntity } from '@root/data-access/entities/task.entity';
 import { StatusesEnum } from '@root/data-access/models-enums/statuses.enum';
 import { TaskInputDto } from '@root/modules/tasks/dto/task.input.dto';
 import { ProjectEntity } from '@root/data-access/entities/project.entity';
-import { MarkEntity } from '@root/data-access/entities/priority.entity';
 import { MarkDto } from '@root/modules/marks/dto/marks.dto';
 import { Inject, Logger, UseGuards } from '@nestjs/common';
 import * as moment from 'moment';
@@ -13,6 +12,7 @@ import { PaginationDto } from '@root/modules/common/dto/pagination.dto';
 import { GqlAuthGuard } from '@root/guards/jwt.guard';
 import { CurrentUser } from '@root/decorators/get-user.decorator';
 import { ProjectDto } from '@root/modules/projects/dto/project.dto';
+import { MarkEntity } from '@root/data-access/entities/mark.entity';
 
 @Resolver(() => TaskDto)
 export class TaskService {

@@ -65,7 +65,6 @@ export class ProjectService {
     @CurrentUser() user
   ): Promise<ProjectDto> {
     const targetProject = await this.projectService.getById(id, { filter: { creator: { id: { eq: user.id } } } });
-    targetProject.favorite = false;
     return await this.projectService.updateOne(targetProject.id, targetProject);
   }
 }

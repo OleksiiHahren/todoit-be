@@ -7,8 +7,8 @@ import { TaskEntity } from '@root/data-access/entities/task.entity';
 import { GqlAuthGuard } from '@root/guards/jwt.guard';
 import { CommonModule } from '@root/modules/common/common.module';
 import { ProjectEntity } from '@root/data-access/entities/project.entity';
-import { MarkEntity } from '@root/data-access/entities/priority.entity';
 import * as moment from 'moment';
+import { MarkEntity } from '@root/data-access/entities/mark.entity';
 
 @Module({
   providers: [

@@ -1,8 +1,8 @@
 import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
 import { ProjectEntity } from '@root/data-access/entities/project.entity';
-import { MarkEntity } from '@root/data-access/entities/priority.entity';
 import { StatusesEnum } from '@root/data-access/models-enums/statuses.enum';
 import { UserEntity } from '@root/data-access/entities/user.entity';
+import { MarkEntity } from '@root/data-access/entities/mark.entity';
 
 @Entity()
 @Unique(['name', 'id'])
