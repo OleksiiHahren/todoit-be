@@ -26,7 +26,7 @@ export class ProjectService {
       paging,
       filter: {
         creator: { id: { eq: user.id } }, favorite: { is: false }
-      },
+      }
     });
   }
 
@@ -42,7 +42,7 @@ export class ProjectService {
           creator: { id: { eq: user.id } }
         },
         {
-          favorite: { is: true }
+          favoriteId: { isNot: null }
         }
       ]
     };

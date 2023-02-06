@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { ConfigService } from '@root/modules/common/config/config.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import typeOrmConfig from './typeorm.config';
-import mailgunConfig from './mailgun.config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver } from '@nestjs/apollo';
 import { GraphQLError, GraphQLFormattedError } from 'graphql/error';
@@ -23,7 +22,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 
         const graphQLFormattedError: GraphQLFormattedError = {
           message,
-          extensions: { status: exception['status'] || '' }, // TODO figure out later why this shit not consist status field
+          extensions: { status: exception ? exception['status'] : ''}, // TODO figure out later why this shit not consist status field
         };
         return graphQLFormattedError;
       },
