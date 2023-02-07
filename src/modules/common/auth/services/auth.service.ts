@@ -1,17 +1,15 @@
-import { HttpException, HttpStatus, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { GoogleStrategy } from '@root/modules/common/auth/strategy/google.strategy';
 import { TokenService } from '@root/modules/common/auth/services/token.service';
 import { UserEntity } from '@root/data-access/entities/user.entity';
 import { TokensType } from '@root/modules/common/auth/types/tokens.type';
-import { ConfigService } from '@root/modules/common/config/config.service';
 import { QueryService, InjectQueryService } from '@nestjs-query/core';
 import { SignInType } from '@root/modules/common/auth/types/sign-in.type';
-import { UserDto } from '@root/modules/common/user/dto/user.dto';
-
-const config = new ConfigService();
 
 @Injectable()
 export class AuthService {
+  readonly logger = new Logger(AuthService.name);
+
   constructor(
     @InjectQueryService(UserEntity) readonly userRepo: QueryService<UserEntity>,
     private googleStrategy: GoogleStrategy,
@@ -19,18 +17,20 @@ export class AuthService {
   ) {
   }
 
-  async signIn(data: UserDto | SignInType) {
+  async signIn(data: SignInType) {
     try {
       const [userExist] = await this.userRepo.query({
         filter: { email: { eq: data.email } }
       });
-
-      if (!userExist) {
-        return new InternalServerErrorException('User not exists!');
+      const validPass = await userExist.validatePassword(data.password);
+      if (userExist && validPass) {
+        const res = await this.fillResponse(userExist);
+        return res;
       }
-      const res = await this.fillResponse(userExist);
-      return res;
+      return new InternalServerErrorException({ message: 'User not exists or credential was incorrect!' });
+
     } catch (e) {
+      this.logger.error(e.message)
     }
   }
 
@@ -69,21 +69,23 @@ export class AuthService {
   }
 
   private async proceedUserLogicWithGoogleAuth(req): Promise<TokensType> {
-    console.log(req, '----------req');
-    let [userExist] = await this.userRepo.query({
-      filter: { email: { eq: req.user.email } }
-    });
-    console.log(userExist, 'userExist ---------');
-    if (!userExist) {
-      const temporaryPassword = (Math.random() + 1).toString(36).substring(7);
-      const userData = new UserEntity(temporaryPassword); // TODO send email after registration
-      userData.firstName = req.user.firstName;
-      userData.firstName = req.user.firstName;
-      userData.lastName = req.user.lastName;
-      userData.email = req.user.email;
-      userExist = await this.userRepo.createOne(userData);
+    try {
+      let [userExist] = await this.userRepo.query({
+        filter: { email: { eq: req.user.email } }
+      });
+      if (!userExist) {
+        const temporaryPassword = (Math.random() + 1).toString(36).substring(7);
+        const userData = new UserEntity(temporaryPassword); // TODO send email after registration
+        userData.firstName = req.user.firstName;
+        userData.firstName = req.user.firstName;
+        userData.lastName = req.user.lastName;
+        userData.email = req.user.email;
+        userExist = await this.userRepo.createOne(userData);
+      }
+      return this.fillResponse(userExist);
+    } catch (e) {
+      this.logger.error(e.message);
     }
-    return this.fillResponse(userExist);
   }
 
   private async fillResponse(user: UserEntity): Promise<TokensType> {
@@ -93,10 +95,9 @@ export class AuthService {
         user
       );
       data.accessToken = await this.tokenService.generateAccessToken(user);
-      console.log('data.accessToken------>', data.accessToken);
       return data;
     } catch (e) {
-      console.error(e.message)
+      this.logger.error(e.message);
     }
 
   }

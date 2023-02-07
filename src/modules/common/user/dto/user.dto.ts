@@ -5,7 +5,7 @@ import { FilterableField, IDField } from '@nestjs-query/query-graphql';
 export class UserDto {
 
   @IDField(type => ID)
-  id: string;
+  id: number;
 
   @FilterableField()
   firstName: string;
@@ -15,9 +15,6 @@ export class UserDto {
 
   @FilterableField()
   email: string;
-
-  @FilterableField()
-  createdAt: string;
 
 }
 

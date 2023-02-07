@@ -4,14 +4,12 @@ import {
   BeforeUpdateOne,
   CreateOneInputType,
   FilterableField,
-  Relation,
-  UpdateOneInputType,
+  Relation, UnPagedRelation,
+  UpdateOneInputType
 } from '@nestjs-query/query-graphql';
 import { UserDto } from '@root/modules/common/user/dto/user.dto';
 import { UserEntity } from '@root/data-access/entities/user.entity';
-import { ContextType } from '@nestjs/common';
-import { FavoriteEntity } from '@root/data-access/entities/favorites.entity';
-import { FavoriteDto } from '@root/modules/favorites/dto/favorite.dto';
+import { TaskDto } from '@root/modules/tasks/dto/task-list-item.type';
 
 @ObjectType('Project')
 @BeforeCreateOne((input: CreateOneInputType<ProjectDto>, context) => {
@@ -22,10 +20,8 @@ import { FavoriteDto } from '@root/modules/favorites/dto/favorite.dto';
   input.update.creator = context.req.user;
   return input;
 })
-
-@Relation('favorite', () => FavoriteDto, { disableRemove: false, nullable: true })
 @Relation('creator', () => UserDto, { disableRemove: false, nullable: false })
-
+@UnPagedRelation('tasks', () => TaskDto, { disableRemove: false, nullable: true })
 export class ProjectDto {
   @FilterableField(() => ID)
   id: string;
@@ -36,16 +32,11 @@ export class ProjectDto {
   @FilterableField()
   color: string;
 
+  @FilterableField({ defaultValue: false })
+  favorite: string;
 
-
-  @FilterableField(() => ID, { nullable: true })
+  @FilterableField(() => ID, { nullable: false })
   creatorId: string;
 
-  @FilterableField(() => ID, { nullable: true })
-  favoriteId: string;
-
   creator?: UserEntity;
-
-  favorite?: FavoriteEntity;
-
 }

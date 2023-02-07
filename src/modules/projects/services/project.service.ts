@@ -42,7 +42,7 @@ export class ProjectService {
           creator: { id: { eq: user.id } }
         },
         {
-          favoriteId: { isNot: null }
+          favorite: { is: true }
         }
       ]
     };
