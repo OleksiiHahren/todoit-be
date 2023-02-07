@@ -33,7 +33,7 @@ export class ProjectDto {
   color: string;
 
   @FilterableField({ defaultValue: false })
-  favorite: string;
+  favorite: boolean;
 
   @FilterableField(() => ID, { nullable: false })
   creatorId: string;

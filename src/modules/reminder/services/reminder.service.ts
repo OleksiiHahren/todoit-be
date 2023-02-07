@@ -52,7 +52,7 @@ export class ReminderService {
 
   private groupByEmail(tasks: TaskDto[]): { [key: string]: TaskDto[] } {
     const resObj = {};
-    tasks.forEach(el => {
+    tasks.forEach((el) => {
       if (!resObj[el.creator.email]) {
         resObj[el.creator.email] = [];
       }

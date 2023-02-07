@@ -7,6 +7,7 @@ import { TaskDto } from '@root/modules/tasks/dto/task-list-item.type';
 import { IsOptional } from 'class-validator';
 import { UserEntity } from '@root/data-access/entities/user.entity';
 import { StatusesEnum } from '@root/data-access/models-enums/statuses.enum';
+import { ProjectEntity } from '@root/data-access/entities/project.entity';
 
 @InputType('taskInput')
 export class TaskInputDto {
@@ -44,6 +45,9 @@ export class TaskInputDto {
   creatorId: string;
 
   creator?: UserEntity;
+
+  project?: ProjectEntity;
+
 }
 
 @InputType()

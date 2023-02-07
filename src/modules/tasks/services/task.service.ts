@@ -18,6 +18,7 @@ import { MarkEntity } from '@root/data-access/entities/mark.entity';
 export class TaskService {
   readonly statusesEnum = StatusesEnum;
   readonly logger = new Logger(this.constructor.name);
+
   constructor(
     @InjectQueryService(ProjectEntity) readonly projectService: QueryService<ProjectDto>,
     @InjectQueryService(MarkEntity) readonly markService: QueryService<MarkDto>,
@@ -29,9 +30,13 @@ export class TaskService {
   @Query(() => TaskDto)
   @UseGuards(GqlAuthGuard)
   async markAsCompleted(@Args('taskId') taskId: string): Promise<TaskDto> {
-    const task = await this.serviceTask.findById(taskId);
-    task.status = StatusesEnum.done;
-    return await this.serviceTask.updateOne(task.id, task);
+    try {
+      const task = await this.serviceTask.findById(taskId);
+      task.status = StatusesEnum.done;
+      return await this.serviceTask.updateOne(task.id, task);
+    } catch (e) {
+      this.logger.error(e.message);
+    }
   }
 
 
@@ -56,7 +61,7 @@ export class TaskService {
         paging: { offset, limit }
       });
     } catch (e) {
-      this.logger.error(e)
+      this.logger.error(e);
     }
 
   }
@@ -107,7 +112,7 @@ export class TaskService {
   @UseGuards(GqlAuthGuard)
   async changePriority(
     ids: string[],
-    @CurrentUser() user,
+    @CurrentUser() user
   ): Promise<TaskDto[]> {
     const tasksForUpdate = [];
     for (let i = 0; i < ids.length; i++) {
@@ -123,31 +128,30 @@ export class TaskService {
     return tasks;
   }
 
-  @Mutation(() => TaskDto)
+/*  @Mutation(() => TaskDto)
   @UseGuards(GqlAuthGuard)
   async createTaskWithAllDetails(@Args('data') data: TaskInputDto, @CurrentUser() user) {
-    const { projectId, markIds, reminder } = data;
-    data.creatorId = user.id;
-    data.creator = user;
-    let task;
+
     try {
-      task = await this.serviceTask.createOne(data);
+      const { projectId, markIds, reminder } = data;
+      data.creatorId = user.id;
+      data.creator = user;
+      const task = await this.serviceTask.createOne(data);
 
+      if (projectId) {
+        await this.fillProjectData(task.id, projectId);
+      }
+      if (markIds) {
+        await this.fillMarksData(task.id, markIds);
+      }
+      if (reminder) {
+        await this.fillRemindersData(task.id, reminder);
+      }
+      return task;
     } catch (e) {
-      console.error(e);
+      this.logger.error(e)
     }
-
-    if (projectId) {
-      await this.fillProjectData(task.id, projectId);
-    }
-    if (markIds) {
-      await this.fillMarksData(task.id, markIds);
-    }
-    if (reminder) {
-      await this.fillRemindersData(task.id, reminder);
-    }
-    return task;
-  }
+  }*/
 
   private async fillProjectData(taskId, projectId): Promise<void> {
     const project = await this.projectService.findById(projectId);
