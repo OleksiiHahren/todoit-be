@@ -3,7 +3,6 @@ import { TaskDto } from '@root/modules/tasks/dto/task-list-item.type';
 import { Filter, InjectQueryService, QueryService } from '@nestjs-query/core';
 import { TaskEntity } from '@root/data-access/entities/task.entity';
 import { StatusesEnum } from '@root/data-access/models-enums/statuses.enum';
-import { TaskInputDto } from '@root/modules/tasks/dto/task.input.dto';
 import { ProjectEntity } from '@root/data-access/entities/project.entity';
 import { MarkDto } from '@root/modules/marks/dto/marks.dto';
 import { Inject, Logger, UseGuards } from '@nestjs/common';

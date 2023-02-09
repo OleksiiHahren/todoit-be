@@ -26,7 +26,7 @@ export class ProjectEntity extends BaseEntity {
   @Column({ default: false })
   favorite: boolean;
 
-  @OneToMany(() => TaskEntity, (task) => task.project)
+  @OneToMany(() => TaskEntity, (task) => task.project, { onDelete: 'CASCADE' })
   tasks: TaskEntity[];
 
   @ManyToOne(() => UserEntity, (user) => user.projects, { nullable: false })

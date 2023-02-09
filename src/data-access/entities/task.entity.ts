@@ -1,4 +1,14 @@
-import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  JoinColumn, JoinTable,
+  ManyToMany,
+  ManyToOne,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  Unique
+} from 'typeorm';
 import { ProjectEntity } from '@root/data-access/entities/project.entity';
 import { StatusesEnum } from '@root/data-access/models-enums/statuses.enum';
 import { UserEntity } from '@root/data-access/entities/user.entity';
@@ -21,14 +31,15 @@ export class TaskEntity extends BaseEntity {
   order: number;
 
   @ManyToOne(() => ProjectEntity, (project) => project.tasks,
-    { nullable: true })
+    { nullable: true, cascade: true })
   project: ProjectEntity;
 
   @Column({ nullable: true })
   deadline: Date;
 
-  @ManyToOne(() => MarkEntity, (mark) => mark.tasks,
-    { nullable: true })
+  @ManyToMany(() => MarkEntity, (mark) => mark.tasks,
+    { nullable: true, cascade: true, onDelete:'CASCADE' })
+  @JoinTable()
   marks: MarkEntity;
 
   @Column({ nullable: true })
