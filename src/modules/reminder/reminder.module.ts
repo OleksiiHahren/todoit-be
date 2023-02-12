@@ -5,6 +5,7 @@ import * as moment from 'moment/moment';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TaskEntity } from '@root/data-access/entities/task.entity';
 import { EmailSendingModule } from '@root/modules/email-sending/email-sending.module';
+import { RemindersEntity } from '@root/data-access/entities/reminders.entity';
 
 @Module({
   providers: [
@@ -17,7 +18,7 @@ import { EmailSendingModule } from '@root/modules/email-sending/email-sending.mo
   ],
   imports: [
     EmailSendingModule,
-    TypeOrmModule.forFeature([TaskEntity])
+    TypeOrmModule.forFeature([TaskEntity, RemindersEntity])
   ]
 })
 

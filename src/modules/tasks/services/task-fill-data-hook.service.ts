@@ -5,6 +5,7 @@ import { TaskDto } from '@root/modules/tasks/dto/task-list-item.type';
 import { InjectQueryService, QueryService } from '@nestjs-query/core';
 import { ProjectEntity } from '@root/data-access/entities/project.entity';
 import { MarkEntity } from '@root/data-access/entities/mark.entity';
+import { RemindersEntity } from '@root/data-access/entities/reminders.entity';
 
 @Injectable()
 export class CreateTaskRelationsHook<T extends TaskDto>
@@ -24,6 +25,12 @@ export class CreateTaskRelationsHook<T extends TaskDto>
     const { user } = context.req;
 
     instance.input.creator = user;
+    if (instance.input.reminderTime) {
+      const reminder = new RemindersEntity();
+      reminder.certainTime = instance.input.reminderTime;
+      reminder.notifyIfOverdue = instance.input.repeatReminder;
+      instance.input.reminder = reminder;
+    }
     if (instance.input.projectId) {
       instance.input.project = await this.projectService.findById(
         instance.input.projectId
@@ -38,6 +45,7 @@ export class CreateTaskRelationsHook<T extends TaskDto>
         }
       });
     }
+    console.log(instance, '--------- instance here')
 
     return instance;
   }

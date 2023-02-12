@@ -13,6 +13,7 @@ import { ProjectEntity } from '@root/data-access/entities/project.entity';
 import { StatusesEnum } from '@root/data-access/models-enums/statuses.enum';
 import { UserEntity } from '@root/data-access/entities/user.entity';
 import { MarkEntity } from '@root/data-access/entities/mark.entity';
+import { RemindersEntity } from '@root/data-access/entities/reminders.entity';
 
 @Entity()
 @Unique(['name', 'id'])
@@ -38,15 +39,13 @@ export class TaskEntity extends BaseEntity {
   deadline: Date;
 
   @ManyToMany(() => MarkEntity, (mark) => mark.tasks,
-    { nullable: true, cascade: true, onDelete:'CASCADE' })
+    { nullable: true, cascade: true, onDelete: 'CASCADE' })
   @JoinTable()
   marks: MarkEntity;
 
-  @Column({ nullable: true })
-  remind: Date;
-
-  @Column({ default: false })
-  repeatRemind: boolean;
+  @OneToOne(() => RemindersEntity, (remind) => remind.task, { nullable: true, onDelete: 'CASCADE', cascade: true })
+  @JoinColumn()
+  reminder: RemindersEntity;
 
   @Column({ default: StatusesEnum.relevant })
   status: StatusesEnum;

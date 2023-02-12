@@ -16,13 +16,15 @@ import { ProjectEntity } from '@root/data-access/entities/project.entity';
 import { MarkEntity } from '@root/data-access/entities/mark.entity';
 import { CreateTaskRelationsHook } from '@root/modules/tasks/services/task-fill-data-hook.service';
 import { UpdateTaskRelationsHook } from '@root/modules/tasks/services/task-update-data-hook.service';
-import { getFilterableFields } from '@nestjs-query/query-graphql/dist/src/decorators/filterable-field.decorator';
+import { ReminderDto } from '@root/modules/reminder/services/dto/reminder.dto';
+import { RemindersEntity } from '@root/data-access/entities/reminders.entity';
 
 @ObjectType('task')
 @BeforeCreateOne(CreateTaskRelationsHook)
 @BeforeUpdateOne(UpdateTaskRelationsHook)
 
 @Relation('creator', () => UserDto, { disableRemove: false, nullable: false })
+@Relation('reminder', () => ReminderDto, { disableRemove: false, nullable: true })
 @Relation('project', () => ProjectDto, { disableRemove: false, nullable: true })
 @OffsetConnection('marks', () => MarkDto, { disableRemove: false, nullable: true })
 export class TaskDto {
@@ -45,14 +47,16 @@ export class TaskDto {
   @FilterableField(() => ID, { nullable: true })
   projectId!: string;
 
-  @FilterableField({ nullable: true })
-  remind: Date;
-
-  @FilterableField()
-  repeatRemind: boolean;
-
   @FilterableField({ nullable: false })
   order: number;
+
+  @Field()
+  @IsOptional()
+  reminderTime?: Date;
+
+  @Field({ defaultValue: false })
+  @IsOptional()
+  repeatReminder: boolean;
 
   @FilterableField({ nullable: true, defaultValue: StatusesEnum.relevant })
   @IsEnum(StatusesEnum)
@@ -63,4 +67,6 @@ export class TaskDto {
   project?: ProjectEntity;
 
   marks?: MarkEntity[];
+
+  reminder?: RemindersEntity;
 }
