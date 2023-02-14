@@ -12,21 +12,24 @@ export class ReminderCronService {
     private readonly emailSendingService: SenderService) {
   }
 
-  @Cron('0 0 * * *')
-  async dailyReminder() {
+  @Cron('* * * * *')
+  async dailyReminder(): Promise<void> {
     try {
       const emailsForSend = [];
       const aggregatedTasks =
         await this.reminderService.getAllUpcomingTaskForRemind();
-      Object.keys(aggregatedTasks).forEach((email) =>
+
+      Object.keys(aggregatedTasks).forEach((email: string) =>
         emailsForSend.push(
           this.emailSendingService.sendTaskReminder(
             email,
-            aggregatedTasks[email],
-          ),
-        ),
+            aggregatedTasks[email]
+          )
+        )
       );
-      return Promise.all(emailsForSend);
+      if (emailsForSend.length) {
+        await Promise.all(emailsForSend);
+      }
     } catch (e) {
       this.logger.error('dailyReminder error with message -', e.error);
     }
@@ -34,21 +37,24 @@ export class ReminderCronService {
   }
 
 
-  @Cron('0 0 * * 0')
-  async remindAboutSkippedTasks() {
+  @Cron('30 12 * * 1')
+  async remindAboutSkippedTasks(): Promise<void> {
     try {
       const emailsForSend = [];
       const expiredTasks =
         await this.reminderService.getAllExpiredTaskForRemind();
+
       Object.keys(expiredTasks).forEach((email) =>
         emailsForSend.push(
           this.emailSendingService.sendTaskExpiredReminder(
             email,
-            expiredTasks[email],
-          ),
-        ),
+            expiredTasks[email]
+          )
+        )
       );
-      return Promise.all(emailsForSend);
+      if (emailsForSend.length) {
+        await Promise.all(emailsForSend);
+      }
     } catch (e) {
       this.logger.error('expired reminder error with message -', e.error);
     }

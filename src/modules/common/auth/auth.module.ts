@@ -13,6 +13,7 @@ import { RefreshToken } from '@root/data-access/entities/refresh-token.entity';
 import { NestjsQueryGraphQLModule } from '@nestjs-query/query-graphql';
 import { TokensType } from '@root/modules/common/auth/types/tokens.type';
 import { UserAssembler } from '@root/modules/common/user/assembler/user.assembler';
+import { EmailSendingModule } from '@root/modules/email-sending/email-sending.module';
 
 const jwtConfig = config.get('jwt');
 
@@ -37,8 +38,11 @@ const jwtConfig = config.get('jwt');
           read: { many: { disabled: true } }
         }]
     }),
+    EmailSendingModule,
+
   ],
   providers: [GoogleStrategy, AuthService, AuthResolver, TokenService],
-  exports: [TokenService],
+  exports: [TokenService]
 })
-export class AuthModule {}
+export class AuthModule {
+}

@@ -5,6 +5,7 @@ import { UserEntity } from '@root/data-access/entities/user.entity';
 import { TokensType } from '@root/modules/common/auth/types/tokens.type';
 import { QueryService, InjectQueryService } from '@nestjs-query/core';
 import { SignInType } from '@root/modules/common/auth/types/sign-in.type';
+import { SenderService } from '@root/modules/email-sending/services/sender.service';
 
 @Injectable()
 export class AuthService {
@@ -12,6 +13,7 @@ export class AuthService {
 
   constructor(
     @InjectQueryService(UserEntity) readonly userRepo: QueryService<UserEntity>,
+    private senderService: SenderService,
     private googleStrategy: GoogleStrategy,
     private tokenService: TokenService
   ) {
@@ -49,8 +51,10 @@ export class AuthService {
       userEntity.lastName = data.lastName;
       userEntity.email = data.email;
       const user = await this.userRepo.createOne(userEntity);
+      await this.senderService.newUserGreating(user);
       return await this.fillResponse(user);
     } catch (e) {
+      this.logger.error(`new user sign up is failed with error:`, e.message)
     }
   }
 

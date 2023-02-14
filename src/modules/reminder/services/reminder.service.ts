@@ -1,13 +1,12 @@
 import { Inject, Logger } from '@nestjs/common';
 import { Resolver } from '@nestjs/graphql';
-import { QueryService } from '@nestjs-query/core';
 import * as moment from 'moment/moment';
 import { StatusesEnum } from '@root/data-access/models-enums/statuses.enum';
 import { TaskDto } from '@root/modules/tasks/dto/task-list-item.type';
-import { TaskEntity } from '@root/data-access/entities/task.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RemindersEntity } from '@root/data-access/entities/reminders.entity';
-import { ReminderDto } from '@root/modules/reminder/services/dto/reminder.dto';
+import { Between, LessThan, Repository } from 'typeorm';
+import { TaskEntity } from '@root/data-access/entities/task.entity';
 
 
 @Resolver(() => TaskDto)
@@ -16,19 +15,19 @@ export class ReminderService {
 
   constructor(
     @Inject('MomentWrapper') private momentWrapper: moment.Moment,
-    @InjectRepository(TaskEntity) private readonly taskService: QueryService<TaskDto>,
-    @InjectRepository(RemindersEntity) private readonly reminderQueryService: QueryService<ReminderDto>
+    @InjectRepository(RemindersEntity) private readonly reminderService: Repository<RemindersEntity>
   ) {
   }
 
-  async getAllUpcomingTaskForRemind(): Promise<{ [key: string]: TaskDto[] }> {
+  async getAllUpcomingTaskForRemind(): Promise<{ [key: string]: TaskEntity[] }> {
     try {
       const startDay = this.momentWrapper.startOf('d').toDate();
-      const endDay = this.momentWrapper.endOf('d').toDate();
-      const tasks = await this.reminderQueryService.query({
-        filter: {
-          certainTime: { between: { lower: startDay, upper: endDay } },
-          task: { status: { neq: StatusesEnum.done } }
+      const endDay = this.momentWrapper.add(1, 'day').endOf('d').toDate();
+      const tasks = await this.reminderService.find({
+        relations: ['task', 'task.creator'],
+        where: {
+          certainTime: Between(startDay, endDay),
+          task: { status: StatusesEnum.relevant }
         }
       });
       return this.groupByEmail(tasks);
@@ -37,30 +36,35 @@ export class ReminderService {
     }
   }
 
-  async getAllExpiredTaskForRemind(): Promise<{ [key: string]: TaskDto[] }> {
+  async getAllExpiredTaskForRemind(): Promise<{ [key: string]: TaskEntity[] }> {
     try {
       const startDay = this.momentWrapper.startOf('d').toDate();
-      const stackOfItems = await this.reminderQueryService.query({
-        filter: {
-          certainTime: { lt: startDay },
-          notifyIfOverdue: { is: true },
-          task: { status: { neq: StatusesEnum.done } }
+      const stackOfItems = await this.reminderService.find({
+        relations: ['task', 'task.creator'],
+        where: {
+          certainTime: LessThan(startDay),
+          task: { status: StatusesEnum.relevant }
         }
       });
+      stackOfItems.forEach((el) => console.log(el.task.creator));
+
       return this.groupByEmail(stackOfItems);
     } catch (e) {
       this.logger.error(e);
     }
   }
 
-  private groupByEmail(tasks: ReminderDto[]): { [key: string]: TaskDto[] } {
+  private groupByEmail(tasks: RemindersEntity[]): { [key: string]: TaskEntity[] } {
     const resObj = {};
-    tasks.forEach((el) => {
-      if (!resObj[el.task.creator.email]) {
-        resObj[el.task.creator.email] = [];
-      }
-      resObj[el.task.creator.email].push(el);
-    });
+    if (tasks.length) {
+      tasks.forEach((el) => {
+        if (!resObj[el.task.creator.email]) {
+          resObj[el.task.creator.email] = [];
+        }
+        resObj[el.task.creator.email].push(el.task);
+      });
+    }
+
     return resObj;
   }
 }

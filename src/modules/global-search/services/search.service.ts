@@ -44,7 +44,6 @@ export class SearchService {
     if (projects.length) {
       res.push(...this._fillResponse(projects, 'project'));
     }
-    console.log(res)
     return res;
   }
 

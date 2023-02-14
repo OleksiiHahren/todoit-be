@@ -45,8 +45,6 @@ export class CreateTaskRelationsHook<T extends TaskDto>
         }
       });
     }
-    console.log(instance, '--------- instance here')
-
     return instance;
   }
 }

@@ -4,11 +4,9 @@ import mailgunConfig from '@root/modules/common/config/mailgun.config';
 import * as moment from 'moment';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { CommonModule } from '@root/modules/common/common.module';
 
 @Module({
   imports: [
-    CommonModule,
     MailerModule.forRootAsync({
       useFactory: async () => ({
         transport: {

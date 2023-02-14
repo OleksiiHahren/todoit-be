@@ -1,7 +1,7 @@
 import {
   HttpException,
   HttpStatus,
-  Injectable, UnauthorizedException,
+  Injectable, Logger, UnauthorizedException,
   UnprocessableEntityException
 } from '@nestjs/common';
 import { UserEntity } from '@root/data-access/entities/user.entity';
@@ -22,6 +22,8 @@ export interface RefreshTokenPayload {
 
 @Injectable()
 export class TokenService {
+  readonly logger = new Logger(TokenService.name);
+
   constructor(
     @InjectQueryService(UserEntity) readonly users: QueryService<UserEntity>,
     @InjectQueryService(RefreshToken)
@@ -40,6 +42,7 @@ export class TokenService {
 
       return await this.jwt.signAsync(opts, { expiresIn: '5m' });
     } catch (e) {
+      this.logger.error(e.message)
     }
 
   }
@@ -59,7 +62,7 @@ export class TokenService {
         expiresIn: '2d'
       });
     } catch (e) {
-      console.error(e);
+      this.logger.error(e.message);
     }
 
   }
@@ -83,7 +86,7 @@ export class TokenService {
     try {
       const payload = await this.decodeAndCheckRefreshToken(encoded);
       const token = await this.getStoredTokenFromRefreshTokenPayload(payload);
-      console.log(token, payload);
+
       if (!token) {
         throw new HttpException(
           'Refresh Token does not exist',
@@ -102,6 +105,7 @@ export class TokenService {
 
       return { user, token };
     } catch (e) {
+      this.logger.error(e.message)
     }
 
   }
@@ -115,7 +119,7 @@ export class TokenService {
       const refreshToken = await this.generateRefreshToken(user);
       return { accessToken, refreshToken };
     } catch (e) {
-      console.error(e);
+      this.logger.error(e.message)
     }
 
   }
@@ -125,10 +129,9 @@ export class TokenService {
   ): Promise<RefreshTokenPayload> {
     try {
       const res = this.jwt.verify(token);
-      console.log(res, 'decodeAndCheckRefreshTokendecodeAndCheckRefreshTokendecodeAndCheckRefreshTokendecodeAndCheckRefreshToken');
+
       return res;
     } catch (e) {
-      console.error(e);
       if (e instanceof TokenExpiredError) {
         throw new HttpException(
           'Refresh token expired',
@@ -182,7 +185,7 @@ export class TokenService {
       }
       return token.save();
     } catch (e) {
-      console.error(e);
+      this.logger.error(e.message)
     }
   }
 }

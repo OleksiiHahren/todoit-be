@@ -13,7 +13,7 @@ export class UserService {
   readonly logger = new Logger(UserService.name);
 
   constructor(
-    @InjectQueryService(UserEntity) private readonly service: QueryService<UserEntity>,
+    @InjectQueryService(UserEntity) private readonly service: QueryService<UserEntity>
   ) {
   }
 
@@ -38,20 +38,16 @@ export class UserService {
       );
       if (checkPass) {
         await targetUser.hashPassword(passwordChange.newPass);
-        console.log(targetUser, 'target user --------')
         const updatedUser = await this.service.updateOne(
           targetUser.id,
           { password: targetUser.password }
         );
-        console.log(updatedUser);
-        return updatedUser
+        return updatedUser;
       } else {
         new Error('incorrect password!');
       }
     } catch (e) {
       this.logger.error(e.message);
     }
-
-
   }
 }
