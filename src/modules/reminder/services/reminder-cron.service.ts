@@ -12,7 +12,7 @@ export class ReminderCronService {
     private readonly emailSendingService: SenderService) {
   }
 
-  @Cron('* * * * *')
+  @Cron('30 0 * * *')
   async dailyReminder(): Promise<void> {
     try {
       const emailsForSend = [];
