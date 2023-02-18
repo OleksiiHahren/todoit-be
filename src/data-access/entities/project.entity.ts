@@ -1,10 +1,19 @@
-import { Unique, BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Unique,
+  BaseEntity,
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn
+} from 'typeorm';
 import { TaskEntity } from '@root/data-access/entities/task.entity';
+import { UserEntity } from '@root/data-access/entities/user.entity';
 
 @Entity()
 @Unique(['name', 'id'])
 export class ProjectEntity extends BaseEntity {
-
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -14,10 +23,13 @@ export class ProjectEntity extends BaseEntity {
   @Column()
   color: string;
 
-  @Column()
+  @Column({ default: false })
   favorite: boolean;
 
-  @OneToMany(() => TaskEntity, (task) => task.project)
+  @OneToMany(() => TaskEntity, (task) => task.project, { onDelete: 'CASCADE' })
   tasks: TaskEntity[];
 
+  @ManyToOne(() => UserEntity, (user) => user.projects, { nullable: false })
+  @JoinColumn()
+  creator: UserEntity;
 }

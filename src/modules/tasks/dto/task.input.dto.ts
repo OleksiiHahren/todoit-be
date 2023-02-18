@@ -1,7 +1,14 @@
-import { FilterableField, Relation, UpdateOneInputType } from '@nestjs-query/query-graphql';
+import {
+  FilterableField,
+  UpdateOneInputType
+} from '@nestjs-query/query-graphql';
 import { Field, ID, InputType } from '@nestjs/graphql';
 import { TaskDto } from '@root/modules/tasks/dto/task-list-item.type';
 import { IsOptional } from 'class-validator';
+import { UserEntity } from '@root/data-access/entities/user.entity';
+import { StatusesEnum } from '@root/data-access/models-enums/statuses.enum';
+import { ProjectEntity } from '@root/data-access/entities/project.entity';
+import { MarkEntity } from '@root/data-access/entities/mark.entity';
 
 @InputType('taskInput')
 export class TaskInputDto {
@@ -13,20 +20,36 @@ export class TaskInputDto {
   @IsOptional()
   description: string;
 
-  @FilterableField()
+  @FilterableField({ nullable: true })
   deadline: Date;
 
-  @FilterableField(() => ID, { nullable: true })
+  @FilterableField({ defaultValue: StatusesEnum.relevant })
+  status: StatusesEnum;
+
+  @Field()
   @IsOptional()
-  priorityId: string;
+  markIds: number[];
 
   @FilterableField(() => ID, { nullable: true })
   @IsOptional()
   projectId: string;
 
+  @FilterableField()
+  @IsOptional()
+  reminder: Date;
+
+  @FilterableField({ defaultValue: false })
+  repeatReminder: boolean;
+
   @FilterableField(() => ID, { nullable: true })
   @IsOptional()
-  reminderId: string;
+  creatorId: string;
+
+  creator?: UserEntity;
+
+  project?: ProjectEntity;
+
+  marks?: MarkEntity[];
 }
 
 @InputType()
