@@ -1,13 +1,13 @@
 import {
   BaseEntity,
-  Column,
+  Column, CreateDateColumn,
   Entity,
   JoinColumn, JoinTable,
   ManyToMany,
   ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
-  Unique
+  Unique, UpdateDateColumn
 } from 'typeorm';
 import { ProjectEntity } from '@root/data-access/entities/project.entity';
 import { StatusesEnum } from '@root/data-access/models-enums/statuses.enum';
@@ -52,4 +52,11 @@ export class TaskEntity extends BaseEntity {
 
   @ManyToOne(() => UserEntity, (user) => user.tasks, { nullable: false })
   creator: UserEntity;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
 }

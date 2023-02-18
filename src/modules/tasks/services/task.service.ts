@@ -1,6 +1,6 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { TaskDto } from '@root/modules/tasks/dto/task-list-item.type';
-import { Filter, InjectQueryService, QueryService } from '@nestjs-query/core';
+import { Filter, InjectQueryService, QueryService, SortDirection } from '@nestjs-query/core';
 import { TaskEntity } from '@root/data-access/entities/task.entity';
 import { StatusesEnum } from '@root/data-access/models-enums/statuses.enum';
 import { ProjectEntity } from '@root/data-access/entities/project.entity';
@@ -57,7 +57,9 @@ export class TaskService {
       };
       return await this.serviceTask.query({
         filter,
-        paging: { offset, limit }
+        paging: { offset, limit },
+        sorting: [{ field: 'updatedAt', direction: SortDirection.DESC }]
+
       });
     } catch (e) {
       this.logger.error(e);
@@ -81,6 +83,7 @@ export class TaskService {
     };
     return await this.serviceTask.query({
       filter,
+      sorting: [{ field: 'updatedAt', direction: SortDirection.DESC }],
       paging: { offset, limit }
     });
   }
@@ -89,37 +92,33 @@ export class TaskService {
   @UseGuards(GqlAuthGuard)
   async taskIncomes(@Args('paging') paging: PaginationDto, @CurrentUser() user): Promise<TaskDto[]> {
     const { offset, limit } = paging;
-    const yesterdayEnd = this.momentWrapper
-      .subtract(1, 'd')
-      .endOf('d')
-      .toDate();
-    const todayEnd = this.momentWrapper.add(1, 'd').endOf('d').toDate();
+
     const filter: Filter<TaskDto> = {
       creator: { id: { eq: user.id } },
-      status: { eq: this.statusesEnum.relevant },
-      and: [
-        {
-          deadline: { lte: todayEnd }
-        }
-      ]
+      status: { eq: this.statusesEnum.relevant }
     };
 
-    return await this.serviceTask.query({ filter, paging: { offset, limit } });
+    return await this.serviceTask.query({
+      filter,
+      paging: { offset, limit }, sorting: [{ field: 'updatedAt', direction: SortDirection.DESC }]
+    });
   }
 
   @Mutation(() => [TaskDto])
   @UseGuards(GqlAuthGuard)
   async changePriority(
-    ids: string[],
+    @Args('ids', { type: () => [String] }) ids: [string],
     @CurrentUser() user
   ): Promise<TaskDto[]> {
     const tasksForUpdate = [];
-    for (let i = 0; i < ids.length; i++) {
+    for (let i = ids.length - 1; i >= 0; i--) {
       tasksForUpdate.push(
         this.serviceTask.updateOne(
           ids[i],
-          { order: i + 1 },
-          { filter: { creator: { id: { eq: user.id } } } }
+          { updatedAt: moment().utc(true).toDate() },
+          {
+            filter: { creator: { id: { eq: user.id } } },
+          }
         )
       );
     }
@@ -127,50 +126,4 @@ export class TaskService {
     return tasks;
   }
 
-/*  @Mutation(() => TaskDto)
-  @UseGuards(GqlAuthGuard)
-  async createTaskWithAllDetails(@Args('data') data: TaskInputDto, @CurrentUser() user) {
-
-    try {
-      const { projectId, markIds, reminder } = data;
-      data.creatorId = user.id;
-      data.creator = user;
-      const task = await this.serviceTask.createOne(data);
-
-      if (projectId) {
-        await this.fillProjectData(task.id, projectId);
-      }
-      if (markIds) {
-        await this.fillMarksData(task.id, markIds);
-      }
-      if (reminder) {
-        await this.fillRemindersData(task.id, reminder);
-      }
-      return task;
-    } catch (e) {
-      this.logger.error(e)
-    }
-  }*/
-
-  private async fillProjectData(taskId, projectId): Promise<void> {
-    const project = await this.projectService.findById(projectId);
-    await this.serviceTask.setRelation(
-      'project',
-      taskId,
-      project.id
-    );
-  }
-
-  private async fillMarksData(taskId, markIds: string[]): Promise<void> {
-    const marks = await this.markService.query({ filter: { id: { in: markIds } } });
-    await this.serviceTask.setRelations(
-      'project',
-      taskId,
-      marks.map((el: MarkDto) => el.id)
-    );
-  }
-
-  private fillRemindersData(taskId, projectId): Promise<void> {
-    return;
-  }
 }

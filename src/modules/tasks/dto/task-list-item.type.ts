@@ -62,6 +62,12 @@ export class TaskDto {
   @IsEnum(StatusesEnum)
   status: StatusesEnum;
 
+  @FilterableField()
+  updatedAt: Date;
+
+  @FilterableField()
+  createdAt: Date;
+
   creator?: UserEntity;
 
   project?: ProjectEntity;
