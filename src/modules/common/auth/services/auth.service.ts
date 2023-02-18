@@ -1,52 +1,60 @@
-import { HttpException, HttpStatus, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { GoogleStrategy } from '@root/modules/common/auth/strategy/google.strategy';
 import { TokenService } from '@root/modules/common/auth/services/token.service';
 import { UserEntity } from '@root/data-access/entities/user.entity';
 import { TokensType } from '@root/modules/common/auth/types/tokens.type';
-import { UserType } from '@root/modules/common/user/types/user.type';
-import { ConfigService } from '@root/modules/common/config/config.service';
 import { QueryService, InjectQueryService } from '@nestjs-query/core';
 import { SignInType } from '@root/modules/common/auth/types/sign-in.type';
-
-const config = new ConfigService();
+import { SenderService } from '@root/modules/email-sending/services/sender.service';
 
 @Injectable()
 export class AuthService {
+  readonly logger = new Logger(AuthService.name);
+
   constructor(
     @InjectQueryService(UserEntity) readonly userRepo: QueryService<UserEntity>,
+    private senderService: SenderService,
     private googleStrategy: GoogleStrategy,
     private tokenService: TokenService
   ) {
   }
 
-  async signIn(data: UserType | SignInType) {
+  async signIn(data: SignInType) {
     try {
       const [userExist] = await this.userRepo.query({
         filter: { email: { eq: data.email } }
       });
-
-      if (!userExist) {
-        return new InternalServerErrorException('User not exists!');
+      const validPass = await userExist.validatePassword(data.password);
+      if (userExist && validPass) {
+        const res = await this.fillResponse(userExist);
+        return res;
       }
-      const res = await this.fillResponse(userExist);
-      return res;
+      return new InternalServerErrorException({ message: 'User not exists or credential was incorrect!' });
+
     } catch (e) {
+      this.logger.error(e.message)
     }
   }
 
   async signUp(data) {
     try {
-      const [userExist] = await this.userRepo.query({
+      const userExists = await this.userRepo.query({
         filter: {
-          email: data.email
+          email: { eq: data.email }
         }
       });
-      if (userExist) {
+      if (userExists.length) {
         return new InternalServerErrorException('User already exists!');
       }
-      const user = await this.userRepo.createOne(data);
+      const userEntity = new UserEntity(data.password); // TODO send email after registration
+      userEntity.firstName = data.firstName;
+      userEntity.lastName = data.lastName;
+      userEntity.email = data.email;
+      const user = await this.userRepo.createOne(userEntity);
+      await this.senderService.newUserGreating(user);
       return await this.fillResponse(user);
     } catch (e) {
+      this.logger.error(`new user sign up is failed with error:`, e.message)
     }
   }
 
@@ -61,30 +69,40 @@ export class AuthService {
     const user = await this.proceedUserLogicWithGoogleAuth(req);
 
     res.body = user;
-    res.redirect(`${FERedirectLink}?accessToken=
-      ${user.accessToken}&refreshToken=${user.refreshToken}`);
+    res.redirect(`${FERedirectLink}?accessToken=${user.accessToken}&refreshToken=${user.refreshToken}`);
   }
 
   private async proceedUserLogicWithGoogleAuth(req): Promise<TokensType> {
-    let [userExist] = await this.userRepo.query({
-      filter: { email: req.email }
-    });
-    if (!userExist) {
-      const userData = new UserEntity();
-      userData.firstName = req.firstName;
-      userExist = await this.userRepo.createOne(userData);
+    try {
+      let [userExist] = await this.userRepo.query({
+        filter: { email: { eq: req.user.email } }
+      });
+      if (!userExist) {
+        const temporaryPassword = (Math.random() + 1).toString(36).substring(7);
+        const userData = new UserEntity(temporaryPassword); // TODO send email after registration
+        userData.firstName = req.user.firstName;
+        userData.firstName = req.user.firstName;
+        userData.lastName = req.user.lastName;
+        userData.email = req.user.email;
+        userExist = await this.userRepo.createOne(userData);
+      }
+      return this.fillResponse(userExist);
+    } catch (e) {
+      this.logger.error(e.message);
     }
-    return this.fillResponse(userExist);
   }
 
   private async fillResponse(user: UserEntity): Promise<TokensType> {
-    const data = new TokensType();
-    data.refreshToken = await this.tokenService.generateRefreshToken(
-      user
-    );
-    data.accessToken = await this.tokenService.generateAccessToken(user);
-    //data.user = Object.assign(new UserType(), user);
-    console.log(data, 'token data');
-    return data;
+    try {
+      const data = new TokensType();
+      data.refreshToken = await this.tokenService.generateRefreshToken(
+        user
+      );
+      data.accessToken = await this.tokenService.generateAccessToken(user);
+      return data;
+    } catch (e) {
+      this.logger.error(e.message);
+    }
+
   }
 }

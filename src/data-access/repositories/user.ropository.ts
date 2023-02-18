@@ -38,7 +38,7 @@ export class UserRepository
     data: UserCreateInterface,
   ): Promise<UserEntity>;
   private async receivedDataToEntity(data: UserCreatDto): Promise<UserEntity> {
-    const resData = new UserEntity();
+    const resData = new UserEntity(data.password);
     await resData.createSalt();
     await resData.hashPassword(data.password);
     resData.firstName = data.firstName;

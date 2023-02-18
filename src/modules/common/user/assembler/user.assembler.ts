@@ -1,19 +1,20 @@
 import { Assembler, ClassTransformerAssembler } from '@nestjs-query/core';
-import { UserType } from '@root/modules/common/user/types/user.type';
 import { UserEntity } from '@root/data-access/entities/user.entity';
 import * as bcrypt from 'bcryptjs';
+import { UserDto } from '@root/modules/common/user/dto/user.dto';
+import { UserCreationDto } from '@root/modules/common/user/dto/user-creation.dto';
 
-@Assembler(UserType, UserEntity)
+@Assembler(UserDto, UserEntity)
 export class UserAssembler extends ClassTransformerAssembler<
-  UserType,
+  UserDto,
   UserEntity> {
-  convertToDTO(entity): UserType {
+  convertToDTO(entity): UserDto {
     return super.convertToDTO(entity);
   }
 
-  convertToCreateEntity(dto: UserType): UserEntity {
+  convertToCreateEntity(dto: UserCreationDto): UserEntity {
     const salt = bcrypt.genSaltSync();
-    const user = Object.assign(new UserEntity(), dto);
+    const user = Object.assign(new UserEntity(dto.password), dto);
     user.salt = salt;
     return user;
   }

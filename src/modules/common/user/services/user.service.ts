@@ -1,24 +1,53 @@
-import { Filter, InjectAssemblerQueryService, InjectQueryService, QueryService } from '@nestjs-query/core';
-import { ConnectionType } from '@nestjs-query/query-graphql';
+import { InjectQueryService, QueryService } from '@nestjs-query/core';
 import { Args, Query, Resolver } from '@nestjs/graphql';
 import { UserEntity } from '@root/data-access/entities/user.entity';
-import { UserConnection, UserQuery } from '@root/modules/common/user/types/user-connection.dto';
-import { UserType } from '@root/modules/common/user/types/user.type';
-import { Req, UseGuards } from '@nestjs/common';
+import { Body, Logger, UseGuards } from '@nestjs/common';
 import { CurrentUser } from '@root/decorators/get-user.decorator';
 import { GqlAuthGuard } from '@root/guards/jwt.guard';
+import { UserDto } from '@root/modules/common/user/dto/user.dto';
+import { ChangePasswordDto } from '@root/modules/common/user/dto/change-password.dto';
 
-@Resolver(() => UserType)
+
+@Resolver(() => UserDto)
 export class UserService {
-  constructor(@InjectQueryService(UserEntity) readonly service: QueryService<UserType>
+  readonly logger = new Logger(UserService.name);
+
+  constructor(
+    @InjectQueryService(UserEntity) private readonly service: QueryService<UserEntity>
   ) {
   }
 
-  @Query(() => UserType)
+  @Query(() => UserDto)
   @UseGuards(GqlAuthGuard)
   me(
     @CurrentUser() user
-  ): Promise<UserType> {
+  ): Promise<UserDto> {
     return this.service.findById(user.id);
+  }
+
+  @Query(() => UserDto)
+  @UseGuards(GqlAuthGuard)
+  async changeMyPassword(
+    @CurrentUser() user,
+    @Args('passwordChange') passwordChange: ChangePasswordDto
+  ): Promise<UserDto> {
+    try {
+      const targetUser = await this.service.getById(user.id);
+      const checkPass = await targetUser.validatePassword(
+        passwordChange.oldPass
+      );
+      if (checkPass) {
+        await targetUser.hashPassword(passwordChange.newPass);
+        const updatedUser = await this.service.updateOne(
+          targetUser.id,
+          { password: targetUser.password }
+        );
+        return updatedUser;
+      } else {
+        new Error('incorrect password!');
+      }
+    } catch (e) {
+      this.logger.error(e.message);
+    }
   }
 }

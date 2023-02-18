@@ -1,8 +1,19 @@
-import { BaseEntity, Column, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import {
+  BaseEntity,
+  Column, CreateDateColumn,
+  Entity,
+  JoinColumn, JoinTable,
+  ManyToMany,
+  ManyToOne,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  Unique, UpdateDateColumn
+} from 'typeorm';
 import { ProjectEntity } from '@root/data-access/entities/project.entity';
-import { PriorityEntity } from '@root/data-access/entities/priority.entity';
 import { StatusesEnum } from '@root/data-access/models-enums/statuses.enum';
-import { ReminderEntity } from '@root/data-access/entities/reminder.entity';
+import { UserEntity } from '@root/data-access/entities/user.entity';
+import { MarkEntity } from '@root/data-access/entities/mark.entity';
+import { RemindersEntity } from '@root/data-access/entities/reminders.entity';
 
 @Entity()
 @Unique(['name', 'id'])
@@ -14,21 +25,38 @@ export class TaskEntity extends BaseEntity {
   @Column()
   name: string;
 
+  @Column({ nullable: true })
+  description: string;
+
+  @Column({ nullable: true })
+  order: number;
+
   @ManyToOne(() => ProjectEntity, (project) => project.tasks,
-    { nullable: true })
+    { nullable: true, cascade: true })
   project: ProjectEntity;
 
   @Column({ nullable: true })
-  deadLine: Date;
+  deadline: Date;
 
-  @ManyToOne(() => PriorityEntity, (priority) => priority.tasks,
-    { nullable: true })
-  priority: PriorityEntity;
+  @ManyToMany(() => MarkEntity, (mark) => mark.tasks,
+    { nullable: true, cascade: true, onDelete: 'CASCADE' })
+  @JoinTable()
+  marks: MarkEntity;
 
-  @OneToOne(() => ReminderEntity, (reminder) => reminder.task,
-    { nullable: true })
-  remind: ReminderEntity;
+  @OneToOne(() => RemindersEntity, (remind) => remind.task, { nullable: true, onDelete: 'CASCADE', cascade: true })
+  @JoinColumn()
+  reminder: RemindersEntity;
 
   @Column({ default: StatusesEnum.relevant })
   status: StatusesEnum;
+
+  @ManyToOne(() => UserEntity, (user) => user.tasks, { nullable: false })
+  creator: UserEntity;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
 }
