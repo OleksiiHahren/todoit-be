@@ -117,13 +117,11 @@ export class TaskService {
           ids[i],
           { updatedAt: moment().utc(true).toDate() },
           {
-            filter: { creator: { id: { eq: user.id } } },
+            filter: { creator: { id: { eq: user.id } } }
           }
         )
       );
     }
-    const tasks = await Promise.all(tasksForUpdate);
-    return tasks;
+    return await Promise.all(tasksForUpdate);
   }
-
 }
