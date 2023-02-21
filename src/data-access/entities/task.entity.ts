@@ -14,6 +14,8 @@ import { StatusesEnum } from '@root/data-access/models-enums/statuses.enum';
 import { UserEntity } from '@root/data-access/entities/user.entity';
 import { MarkEntity } from '@root/data-access/entities/mark.entity';
 import { RemindersEntity } from '@root/data-access/entities/reminders.entity';
+import { PrioritiesEnum } from '@root/data-access/models-enums/priorities.enum';
+import { IsEnum } from 'class-validator';
 
 @Entity()
 @Unique(['name', 'id'])
@@ -28,15 +30,16 @@ export class TaskEntity extends BaseEntity {
   @Column({ nullable: true })
   description: string;
 
-  @Column({ nullable: true })
-  order: number;
-
   @ManyToOne(() => ProjectEntity, (project) => project.tasks,
     { nullable: true, cascade: true })
   project: ProjectEntity;
 
   @Column({ nullable: true })
   deadline: Date;
+
+  @Column({ enum: PrioritiesEnum, default: PrioritiesEnum.low })
+  @IsEnum(PrioritiesEnum)
+  priority: PrioritiesEnum;
 
   @ManyToMany(() => MarkEntity, (mark) => mark.tasks,
     { nullable: true, cascade: true, onDelete: 'CASCADE' })

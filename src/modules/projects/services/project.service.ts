@@ -25,7 +25,7 @@ export class ProjectService {
     return await this.projectService.query({
       paging,
       filter: {
-        creator: { id: { eq: user.id } }, favorite: { is: false }
+        creator: { id: { eq: user.id } }
       }
     });
   }
