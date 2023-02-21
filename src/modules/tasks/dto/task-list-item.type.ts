@@ -2,12 +2,11 @@ import { Field, ID, ObjectType } from '@nestjs/graphql';
 import {
   BeforeCreateOne,
   BeforeUpdateOne,
-  CreateOneInputType,
   FilterableField, OffsetConnection,
-  Relation, UpdateOneInputType
+  Relation
 } from '@nestjs-query/query-graphql';
 import { StatusesEnum } from '@root/data-access/models-enums/statuses.enum';
-import { IsEnum, IsOptional } from 'class-validator';
+import { IsOptional } from 'class-validator';
 import { MarkDto } from '@root/modules/marks/dto/marks.dto';
 import { UserDto } from '@root/modules/common/user/dto/user.dto';
 import { UserEntity } from '@root/data-access/entities/user.entity';
@@ -18,6 +17,7 @@ import { CreateTaskRelationsHook } from '@root/modules/tasks/services/task-fill-
 import { UpdateTaskRelationsHook } from '@root/modules/tasks/services/task-update-data-hook.service';
 import { ReminderDto } from '@root/modules/reminder/services/dto/reminder.dto';
 import { RemindersEntity } from '@root/data-access/entities/reminders.entity';
+import { PrioritiesEnum } from '@root/data-access/models-enums/priorities.enum';
 
 @ObjectType('task')
 @BeforeCreateOne(CreateTaskRelationsHook)
@@ -31,7 +31,7 @@ export class TaskDto {
   @Field(() => ID)
   id: string;
 
-  @FilterableField({ nullable: true })
+  @FilterableField({ nullable: false })
   name: string;
 
   @FilterableField({ nullable: true })
@@ -40,15 +40,15 @@ export class TaskDto {
   @FilterableField({ nullable: true })
   deadline: Date;
 
-  @Field(() => [ID])
+  @Field(() => [ID], { nullable: true })
   @IsOptional()
   markIds?: number[];
 
   @FilterableField(() => ID, { nullable: true })
   projectId!: string;
 
-  @FilterableField({ nullable: false })
-  order: number;
+  @FilterableField({ defaultValue: PrioritiesEnum.low })
+  priority: PrioritiesEnum;
 
   @Field()
   @IsOptional()
@@ -59,7 +59,6 @@ export class TaskDto {
   repeatReminder: boolean;
 
   @FilterableField({ nullable: true, defaultValue: StatusesEnum.relevant })
-  @IsEnum(StatusesEnum)
   status: StatusesEnum;
 
   @FilterableField()

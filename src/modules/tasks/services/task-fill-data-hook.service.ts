@@ -23,7 +23,6 @@ export class CreateTaskRelationsHook<T extends TaskDto>
     context: { req: { user: UserEntity } }
   ): Promise<CreateOneInputType<T>> {
     const { user } = context.req;
-
     instance.input.creator = user;
     if (instance.input.reminderTime) {
       const reminder = new RemindersEntity();
