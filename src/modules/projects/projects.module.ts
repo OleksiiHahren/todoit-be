@@ -18,7 +18,7 @@ import { ProjectDto } from '@root/modules/projects/dto/project.dto';
       assemblers: [],
       resolvers: [
         {
-          read: { disabled: true },
+          read: { many: { disabled: true } },
           create: { many: { disabled: true } },
           delete: { many: { disabled: true } },
           update: { many: { disabled: true } },
