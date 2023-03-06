@@ -1,13 +1,14 @@
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
 </p>
+<div style="display: flex; align-items: flex-start; justify-content: space-around">
 <img src="https://graphql.org/img/logo.svg" width="50"/>
 <img src="https://doug-martin.github.io/nestjs-query/img/logo.svg" width="50"/>
 <img src="https://www.postgresql.org/media/img/about/press/elephant.png" width="50"/>
 <img src="https://oauth.net/images/oauth-logo-square.png" width="50"/>
 <img src="https://raw.githubusercontent.com/typeorm/typeorm/master/resources/logo_big.png" width="100"/>
 <img src="https://pbs.twimg.com/profile_images/599259952574693376/DMrPoJtc_400x400.png" width="50"/>
-
+</div>
 
 [circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
 [circleci-url]: https://circleci.com/gh/nestjs/nest
