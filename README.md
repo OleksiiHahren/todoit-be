@@ -3,13 +3,10 @@
 </p>
 <img src="https://graphql.org/img/logo.svg" width="50"/>
 <img src="https://doug-martin.github.io/nestjs-query/img/logo.svg" width="50"/>
-<img src="https://www.postgresql.org/media/img/about/press/elephant.png
-" width="50"/>
+<img src="https://www.postgresql.org/media/img/about/press/elephant.png" width="50"/>
 <img src="https://oauth.net/images/oauth-logo-square.png" width="50"/>
-<img src="https://raw.githubusercontent.com/typeorm/typeorm/master/resources/logo_big.png
-" width="100"/>
-<img src="https://pbs.twimg.com/profile_images/599259952574693376/DMrPoJtc_400x400.png
-" width="50"/>
+<img src="https://raw.githubusercontent.com/typeorm/typeorm/master/resources/logo_big.png" width="100"/>
+<img src="https://pbs.twimg.com/profile_images/599259952574693376/DMrPoJtc_400x400.png" width="50"/>
 
 
 [circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
