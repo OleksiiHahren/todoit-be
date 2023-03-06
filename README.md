@@ -1,7 +1,7 @@
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
 </p>
-<div style="display: flex; align-items: flex-start; justify-content: space-around">
+<div style="display: flex; align-items: flex-start; justify-content: space-around; width: 500px">
 <img src="https://graphql.org/img/logo.svg" width="50"/>
 <img src="https://doug-martin.github.io/nestjs-query/img/logo.svg" width="50"/>
 <img src="https://www.postgresql.org/media/img/about/press/elephant.png" width="50"/>
