@@ -18,8 +18,8 @@
 
 ## Description
 
-This project using NestJS and GraphQL, NestJS-query for easiest way manage data, OAuth like additional way for authorisation, PostgreSQL for DB and TypeORM, 
-JWT tokens (access and refresh) with PassportJS middleware lib. Mailgun for mails sendings. Feel free to use it like skeleton for setup your own projects. 
+Boilerplate which uses NestJS and GraphQL, NestJS-query for the easiest way to manage data, OAuth as an additional way for authorization, PostgreSQL for DB and TypeORM, 
+JWT tokens (access and refresh) with PassportJS middleware lib. Mailgun for mail sendings. Feel free to use it like a skeleton for setting up your own projects. 
 
 ## Installation
 
@@ -53,11 +53,3 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
-## Stay in touch
-
-- Author - [Oleksii Gagren](https://github.com/OleksiiHahren)
-- [LinkedIn](https://www.linkedin.com/in/oleksii-gagren-389975120)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
